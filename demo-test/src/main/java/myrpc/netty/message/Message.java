@@ -5,6 +5,7 @@ import myrpc.netty.message.enums.MessageSerializeType;
 public class Message {
 
     public static final int MESSAGE_HEADER_LENGTH = 16;
+    public static final int MESSAGE_SERIALIZE_TYPE_LENGTH = 5;
     public static final byte MAGIC_HIGH = (byte)0x66;
     public static final byte MAGIC_LOW = (byte)0x77;
     public static final byte[] MAGIC = new byte[]{MAGIC_HIGH,MAGIC_LOW};
