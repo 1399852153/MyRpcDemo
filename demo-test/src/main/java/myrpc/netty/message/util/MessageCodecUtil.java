@@ -9,7 +9,7 @@ import java.io.*;
 
 public class MessageCodecUtil {
 
-    public static byte[] messageEncode(Message message) throws IOException {
+    public static <T> byte[] messageEncode(Message<T> message) throws IOException {
         ByteArrayOutputStream byteArrayInputStream = new ByteArrayOutputStream(Message.MESSAGE_HEADER_LENGTH);
         DataOutputStream dos = new DataOutputStream(byteArrayInputStream);
 
@@ -33,20 +33,21 @@ public class MessageCodecUtil {
         dos.writeLong(message.getMessageUUId());
 
         // todo 暂时写死json序列化，后续再抽象
-        byte[] bizMessageBytes = JsonUtil.obj2Str(message.getBizData()).getBytes(GlobalConstants.DEFAULT_CHARSET);
+        String jsonStr = JsonUtil.obj2Str(message.getBizData());
+        byte[] bizMessageBytes = jsonStr.getBytes(GlobalConstants.DEFAULT_CHARSET);
         // 写入消息正文长度
-        dos.write(bizMessageBytes.length);
+        dos.writeInt(bizMessageBytes.length);
         // 写入消息正文内容
         dos.write(bizMessageBytes);
 
         return byteArrayInputStream.toByteArray();
     }
 
-    public static Message messageDecode(byte[] bytes) throws IOException {
+    public static <T> Message<T> messageDecode(byte[] bytes, Class<T> messageBizDataType) throws IOException {
         ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
         DataInputStream dis = new DataInputStream(byteArrayInputStream);
 
-        Message message = new Message();
+        Message<T> message = new Message<>();
         // 读取魔数
         message.setMagicNumber(new byte[]{dis.readByte(),dis.readByte()});
         // 读取消息标识
@@ -68,9 +69,21 @@ public class MessageCodecUtil {
         // 读取消息uuid
         message.setMessageUUId(dis.readLong());
 
-        // 读取消息正文
-//        Object
+        // 读取消息正文长度
+        int bizDataLength = dis.readInt();
+        message.setBizDataLength(bizDataLength);
 
-        return null;
+        // 读取消息正文
+        byte[] bizDataBytes = new byte[bizDataLength];
+        dis.read(bizDataBytes);
+
+        // todo 暂时写死json序列化，后续再抽象
+        String jsonStr = new String(bizDataBytes,GlobalConstants.DEFAULT_CHARSET);
+        T bizData = JsonUtil.json2Obj(jsonStr,messageBizDataType);
+        message.setBizData(bizData);
+
+        return message;
     }
+
+
 }

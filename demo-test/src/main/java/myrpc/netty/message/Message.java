@@ -2,12 +2,15 @@ package myrpc.netty.message;
 
 import myrpc.netty.message.enums.MessageSerializeType;
 
-public class Message {
+import java.util.Arrays;
+import java.util.Objects;
+
+public class Message<T> {
 
     public static final int MESSAGE_HEADER_LENGTH = 16;
     public static final int MESSAGE_SERIALIZE_TYPE_LENGTH = 5;
-    public static final byte MAGIC_HIGH = (byte)0x66;
-    public static final byte MAGIC_LOW = (byte)0x77;
+    public static final byte MAGIC_HIGH = (byte)0x22;
+    public static final byte MAGIC_LOW = (byte)0x33;
     public static final byte[] MAGIC = new byte[]{MAGIC_HIGH,MAGIC_LOW};
 
 
@@ -20,18 +23,18 @@ public class Message {
     /**
      * 消息标识(0代表请求事件；1代表响应事件， 占1位)
      * */
-    private Boolean messageFlag;
+    private boolean messageFlag;
 
     /**
      * 是否是双向请求(0代表oneWay请求；1代表twoWay请求）
      * （双向代表客户端会等待服务端的响应，单向则请求发送完成后即向上层返回成功)
      * */
-    private Boolean twoWayFlag;
+    private boolean twoWayFlag;
 
     /**
      * 是否是心跳消息(0代表正常消息；1代表心跳消息， 占1位)
      * */
-    private Boolean eventFlag;
+    private boolean eventFlag;
 
     /**
      * 消息体序列化类型(占5位，即所支持的序列化类型不得超过2的5次方，32种)
@@ -58,7 +61,7 @@ public class Message {
     /**
      * 业务数据
      * */
-    private Object bizData;
+    private T bizData;
 
 
     public byte[] getMagicNumber() {
@@ -69,27 +72,27 @@ public class Message {
         this.magicNumber = magicNumber;
     }
 
-    public Boolean getMessageFlag() {
+    public boolean getMessageFlag() {
         return messageFlag;
     }
 
-    public void setMessageFlag(Boolean messageFlag) {
+    public void setMessageFlag(boolean messageFlag) {
         this.messageFlag = messageFlag;
     }
 
-    public Boolean getTwoWayFlag() {
+    public boolean getTwoWayFlag() {
         return twoWayFlag;
     }
 
-    public void setTwoWayFlag(Boolean twoWayFlag) {
+    public void setTwoWayFlag(boolean twoWayFlag) {
         this.twoWayFlag = twoWayFlag;
     }
 
-    public Boolean getEventFlag() {
+    public boolean getEventFlag() {
         return eventFlag;
     }
 
-    public void setEventFlag(Boolean eventFlag) {
+    public void setEventFlag(boolean eventFlag) {
         this.eventFlag = eventFlag;
     }
 
@@ -125,11 +128,11 @@ public class Message {
         this.bizDataLength = bizDataLength;
     }
 
-    public Object getBizData() {
+    public T getBizData() {
         return bizData;
     }
 
-    public void setBizData(Object bizData) {
+    public void setBizData(T bizData) {
         this.bizData = bizData;
     }
 }
