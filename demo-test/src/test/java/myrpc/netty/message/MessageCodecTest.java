@@ -6,7 +6,6 @@ import myrpc.netty.message.util.MessageCodecUtil;
 import org.junit.Test;
 
 import java.io.IOException;
-import java.util.UUID;
 
 public class MessageCodecTest {
 
@@ -30,7 +29,7 @@ public class MessageCodecTest {
         message.setBizData(rpcRequest);
 
         byte[] messageEncodeResult = MessageCodecUtil.messageEncode(message);
-        Message<RpcRequest> messageDecodeResult = MessageCodecUtil.messageDecode(messageEncodeResult,RpcRequest.class);
+//        Message<RpcRequest> messageDecodeResult = MessageCodecUtil.messageHeaderDecode(messageEncodeResult,RpcRequest.class);
 
     }
 }

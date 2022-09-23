@@ -1,5 +1,6 @@
 package myrpc.netty.message.util;
 
+import io.netty.buffer.ByteBuf;
 import myrpc.common.GlobalConstants;
 import myrpc.common.JsonUtil;
 import myrpc.netty.message.Message;
@@ -43,47 +44,44 @@ public class MessageCodecUtil {
         return byteArrayInputStream.toByteArray();
     }
 
-    public static <T> Message<T> messageDecode(byte[] bytes, Class<T> messageBizDataType) throws IOException {
-        ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
-        DataInputStream dis = new DataInputStream(byteArrayInputStream);
-
+    public static <T> Message<T> messageHeaderDecode(ByteBuf byteBuf, Class<T> messageBizDataType) throws IOException {
         Message<T> message = new Message<>();
         // 读取魔数
-        message.setMagicNumber(new byte[]{dis.readByte(),dis.readByte()});
+        message.setMagicNumber(new byte[]{byteBuf.readByte(),byteBuf.readByte()});
         // 读取消息标识
-        message.setMessageFlag(dis.readBoolean());
+        message.setMessageFlag(byteBuf.readBoolean());
         // 读取单/双向标识
-        message.setTwoWayFlag(dis.readBoolean());
+        message.setTwoWayFlag(byteBuf.readBoolean());
         // 读取消息事件标识
-        message.setEventFlag(dis.readBoolean());
+        message.setEventFlag(byteBuf.readBoolean());
 
         // 读取序列化类型
         Boolean[] serializeTypeBytes = new Boolean[Message.MESSAGE_SERIALIZE_TYPE_LENGTH];
         for(int i=0; i<Message.MESSAGE_SERIALIZE_TYPE_LENGTH; i++){
-            serializeTypeBytes[i] = dis.readBoolean();
+            serializeTypeBytes[i] = byteBuf.readBoolean();
         }
         message.setSerializeType(serializeTypeBytes);
 
         // 读取响应状态
-        message.setResponseStatus(dis.readByte());
+        message.setResponseStatus(byteBuf.readByte());
         // 读取消息uuid
-        message.setMessageUUId(dis.readLong());
+        message.setMessageUUId(byteBuf.readLong());
 
         // 读取消息正文长度
-        int bizDataLength = dis.readInt();
+        int bizDataLength = byteBuf.readInt();
         message.setBizDataLength(bizDataLength);
-
-        // 读取消息正文
-        byte[] bizDataBytes = new byte[bizDataLength];
-        dis.read(bizDataBytes);
-
-        // todo 暂时写死json序列化，后续再抽象
-        String jsonStr = new String(bizDataBytes,GlobalConstants.DEFAULT_CHARSET);
-        T bizData = JsonUtil.json2Obj(jsonStr,messageBizDataType);
-        message.setBizData(bizData);
 
         return message;
     }
 
+    public static <T> T messageBizDataDecode(ByteBuf byteBuf, int bizDataLength, Class<T> messageBizDataType){
+        // 读取消息正文
+        byte[] bizDataBytes = new byte[bizDataLength];
+        byteBuf.readBytes(bizDataBytes);
 
+        // todo 暂时写死json序列化，后续再抽象
+        String jsonStr = new String(bizDataBytes,GlobalConstants.DEFAULT_CHARSET);
+
+        return JsonUtil.json2Obj(jsonStr,messageBizDataType);
+    }
 }
