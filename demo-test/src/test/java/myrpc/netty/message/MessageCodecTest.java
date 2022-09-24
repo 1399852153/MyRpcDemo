@@ -1,8 +1,9 @@
 package myrpc.netty.message;
 
 import myrpc.netty.message.enums.MessageSerializeType;
+import myrpc.netty.message.model.MessageHeader;
+import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
-import myrpc.netty.message.util.MessageCodecUtil;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -11,13 +12,13 @@ public class MessageCodecTest {
 
     @Test
     public void messageCodecTest() throws IOException {
-        Message<RpcRequest> message = new Message<>();
-        message.setMessageFlag(true);
-        message.setTwoWayFlag(false);
-        message.setEventFlag(true);
-        message.setSerializeType(MessageSerializeType.HESSIAN.getCode());
-        message.setResponseStatus((byte)'a');
-        message.setMessageUUId(123456789L);
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setMessageFlag(true);
+        messageHeader.setTwoWayFlag(false);
+        messageHeader.setEventFlag(true);
+        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
+        messageHeader.setResponseStatus((byte)'a');
+        messageHeader.setMessageUUId(123456789L);
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName("com.aaa.bcd");
@@ -26,9 +27,9 @@ public class MessageCodecTest {
         rpcRequest.setParams(new Object[]{"name1"});
         rpcRequest.setReturnClass(String.class);
 
-        message.setBizData(rpcRequest);
+        MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
 
-        byte[] messageEncodeResult = MessageCodecUtil.messageEncode(message);
+//        byte[] messageEncodeResult = MessageCodecUtil.messageEncode(messageHeader);
 //        Message<RpcRequest> messageDecodeResult = MessageCodecUtil.messageHeaderDecode(messageEncodeResult,RpcRequest.class);
 
     }

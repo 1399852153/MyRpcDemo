@@ -1,11 +1,9 @@
-package myrpc.netty.message;
+package myrpc.netty.message.model;
 
+import myrpc.netty.message.enums.MessageFlagEnums;
 import myrpc.netty.message.enums.MessageSerializeType;
 
-import java.util.Arrays;
-import java.util.Objects;
-
-public class Message<T> {
+public class MessageHeader {
 
     public static final int MESSAGE_HEADER_LENGTH = 16;
     public static final int MESSAGE_SERIALIZE_TYPE_LENGTH = 5;
@@ -22,6 +20,7 @@ public class Message<T> {
 
     /**
      * 消息标识(0代表请求事件；1代表响应事件， 占1位)
+     * @see MessageFlagEnums
      * */
     private boolean messageFlag;
 
@@ -57,13 +56,6 @@ public class Message<T> {
      * */
     private int bizDataLength;
 
-    // ================================ 消息体 =================================
-    /**
-     * 业务数据
-     * */
-    private T bizData;
-
-
     public byte[] getMagicNumber() {
         return magicNumber;
     }
@@ -72,7 +64,7 @@ public class Message<T> {
         this.magicNumber = magicNumber;
     }
 
-    public boolean getMessageFlag() {
+    public boolean isMessageFlag() {
         return messageFlag;
     }
 
@@ -80,7 +72,7 @@ public class Message<T> {
         this.messageFlag = messageFlag;
     }
 
-    public boolean getTwoWayFlag() {
+    public boolean isTwoWayFlag() {
         return twoWayFlag;
     }
 
@@ -88,7 +80,7 @@ public class Message<T> {
         this.twoWayFlag = twoWayFlag;
     }
 
-    public boolean getEventFlag() {
+    public boolean isEventFlag() {
         return eventFlag;
     }
 
@@ -126,13 +118,5 @@ public class Message<T> {
 
     public void setBizDataLength(int bizDataLength) {
         this.bizDataLength = bizDataLength;
-    }
-
-    public T getBizData() {
-        return bizData;
-    }
-
-    public void setBizData(T bizData) {
-        this.bizData = bizData;
     }
 }

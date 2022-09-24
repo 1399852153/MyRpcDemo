@@ -1,6 +1,6 @@
 package myrpc.netty.message.enums;
 
-import myrpc.netty.message.Message;
+import myrpc.netty.message.model.Message;
 
 /**
  * 消息序列化方式
