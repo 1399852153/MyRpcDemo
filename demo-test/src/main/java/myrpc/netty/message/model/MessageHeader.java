@@ -22,18 +22,18 @@ public class MessageHeader {
      * 消息标识(0代表请求事件；1代表响应事件， 占1位)
      * @see MessageFlagEnums
      * */
-    private boolean messageFlag;
+    private Boolean messageFlag;
 
     /**
      * 是否是双向请求(0代表oneWay请求；1代表twoWay请求）
      * （双向代表客户端会等待服务端的响应，单向则请求发送完成后即向上层返回成功)
      * */
-    private boolean twoWayFlag;
+    private Boolean twoWayFlag;
 
     /**
      * 是否是心跳消息(0代表正常消息；1代表心跳消息， 占1位)
      * */
-    private boolean eventFlag;
+    private Boolean eventFlag;
 
     /**
      * 消息体序列化类型(占5位，即所支持的序列化类型不得超过2的5次方，32种)
@@ -64,27 +64,27 @@ public class MessageHeader {
         this.magicNumber = magicNumber;
     }
 
-    public boolean isMessageFlag() {
+    public Boolean getMessageFlag() {
         return messageFlag;
     }
 
-    public void setMessageFlag(boolean messageFlag) {
+    public void setMessageFlag(Boolean messageFlag) {
         this.messageFlag = messageFlag;
     }
 
-    public boolean isTwoWayFlag() {
+    public Boolean getTwoWayFlag() {
         return twoWayFlag;
     }
 
-    public void setTwoWayFlag(boolean twoWayFlag) {
+    public void setTwoWayFlag(Boolean twoWayFlag) {
         this.twoWayFlag = twoWayFlag;
     }
 
-    public boolean isEventFlag() {
+    public Boolean getEventFlag() {
         return eventFlag;
     }
 
-    public void setEventFlag(boolean eventFlag) {
+    public void setEventFlag(Boolean eventFlag) {
         this.eventFlag = eventFlag;
     }
 

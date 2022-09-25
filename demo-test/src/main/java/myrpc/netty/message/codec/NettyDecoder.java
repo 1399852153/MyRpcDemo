@@ -1,4 +1,4 @@
-package myrpc.proxy;
+package myrpc.netty.message.codec;
 
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -14,8 +14,9 @@ import java.util.List;
  * @author shanreng
  */
 public class NettyDecoder extends ByteToMessageDecoder {
+
     @Override
-    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list) throws Exception {
+    protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list){
 
         // 保存读取前的读指针
         int beforeReadIndex = byteBuf.readerIndex();
@@ -56,7 +57,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
         }
 
         // 基于消息类型标识，解析rpc正文对象
-        boolean messageFlag = messageHeader.isMessageFlag();
+        boolean messageFlag = messageHeader.getMessageFlag();
         if(messageFlag == MessageFlagEnums.REQUEST.getCode()){
             RpcRequest rpcRequest = MessageCodecUtil.messageBizDataDecode(byteBuf,bizDataLength,RpcRequest.class);
             MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
