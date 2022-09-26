@@ -6,7 +6,13 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.timeout.IdleStateHandler;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import myrpc.netty.message.codec.NettyEncoder;
+import myrpc.netty.message.model.MessageProtocol;
+import myrpc.netty.message.model.RpcRequest;
+
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class NettyServer {
 
@@ -21,10 +27,17 @@ public class NettyServer {
                 .channel(NioServerSocketChannel.class)
                 .childHandler(new ChannelInitializer<SocketChannel>() {
                     @Override
-                    protected void initChannel(SocketChannel socketChannel) throws Exception {
-                        // 编码、解码处理器
-                        // 心跳处理器
-                        // 实际调用业务方法的处理器
+                    protected void initChannel(SocketChannel socketChannel) {
+                        socketChannel.pipeline()
+                                // 编码、解码处理器
+                                .addLast("decoder",new NettyEncoder<MessageProtocol<RpcRequest>>())
+                                .addLast("encoder",new NettyEncoder<>())
+                                // 心跳处理器
+//                                .addLast("server-idle-handler",
+//                                        new IdleStateHandler(0, 0, 5, MILLISECONDS))
+                                // 实际调用业务方法的处理器
+                                .addLast("serverHandler",null)
+                        ;
                     }
                 });
 
