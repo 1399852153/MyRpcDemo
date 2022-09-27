@@ -41,8 +41,7 @@ public class NettyServer {
 //                                .addLast("server-idle-handler",
 //                                        new IdleStateHandler(0, 0, 5, MILLISECONDS))
                                 // 实际调用业务方法的处理器
-//                                .addLast("serverHandler",null)
-                        ;
+                                .addLast("serverHandler",new NettyServerHandler());
                     }
                 });
 

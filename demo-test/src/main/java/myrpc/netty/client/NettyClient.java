@@ -47,7 +47,7 @@ public class NettyClient {
                     }
                 });
 
-        String serverAddress = "127.0.0.1";
+        String serverAddress = InetAddress.getLocalHost().getHostAddress();
         int port = 8080;
         ChannelFuture channelFuture = bootstrap.connect(serverAddress, 8080).sync();
         logger.info("client connected addr {} started on port {}", serverAddress, port);
