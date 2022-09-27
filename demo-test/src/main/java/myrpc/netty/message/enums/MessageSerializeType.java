@@ -1,6 +1,7 @@
 package myrpc.netty.message.enums;
 
-import myrpc.netty.message.model.Message;
+
+import myrpc.netty.message.model.MessageHeader;
 
 /**
  * 消息序列化方式
@@ -33,11 +34,11 @@ public enum MessageSerializeType {
     private static Boolean[] transToCode(String code){
         char[] chars = code.toCharArray();
 
-        if(chars.length != Message.MESSAGE_SERIALIZE_TYPE_LENGTH){
-            throw new RuntimeException("MessageSerializeType code must has " + Message.MESSAGE_SERIALIZE_TYPE_LENGTH + "bit");
+        if(chars.length != MessageHeader.MESSAGE_SERIALIZE_TYPE_LENGTH){
+            throw new RuntimeException("MessageSerializeType code must has " + MessageHeader.MESSAGE_SERIALIZE_TYPE_LENGTH + "bit");
         }
 
-        Boolean[] result = new Boolean[Message.MESSAGE_SERIALIZE_TYPE_LENGTH];
+        Boolean[] result = new Boolean[MessageHeader.MESSAGE_SERIALIZE_TYPE_LENGTH];
         for(int i=0; i<chars.length; i++){
             if(chars[i] == '0'){
                 result[i] = false;
