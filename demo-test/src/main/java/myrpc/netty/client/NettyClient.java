@@ -4,12 +4,14 @@ import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
-import io.netty.channel.epoll.EpollEventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import myrpc.netty.message.codec.NettyEncoder;
+import myrpc.netty.message.enums.MessageFlagEnums;
+import myrpc.netty.message.enums.MessageSerializeType;
+import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import org.slf4j.Logger;
@@ -42,7 +44,7 @@ public class NettyClient {
 //                                .addLast("server-idle-handler",
 //                                        new IdleStateHandler(0, 0, 5, MILLISECONDS))
                                 // 实际调用业务方法的处理器
-//                                .addLast("clientHandler",null)
+                                .addLast("clientHandler",new RpcResponseHandler())
                         ;
                     }
                 });
@@ -51,6 +53,24 @@ public class NettyClient {
         int port = 8080;
         ChannelFuture channelFuture = bootstrap.connect(serverAddress, 8080).sync();
         logger.info("client connected addr {} started on port {}", serverAddress, port);
+
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
+        messageHeader.setTwoWayFlag(false);
+        messageHeader.setEventFlag(true);
+        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
+        messageHeader.setResponseStatus((byte)'a');
+        messageHeader.setMessageUUId(123456789L);
+
+        RpcRequest rpcRequest = new RpcRequest();
+        rpcRequest.setInterfaceName("com.aaa.bcd");
+        rpcRequest.setMethodName("echo");
+        rpcRequest.setParameterClasses(new Class[]{String.class});
+        rpcRequest.setParams(new Object[]{"name1"});
+        rpcRequest.setReturnClass(String.class);
+
+        MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
+        channelFuture.channel().writeAndFlush(messageProtocol);
         channelFuture.channel().closeFuture().sync();
 
     }
