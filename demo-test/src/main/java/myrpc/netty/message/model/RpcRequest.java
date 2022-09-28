@@ -8,6 +8,11 @@ import java.lang.reflect.Type;
 public class RpcRequest {
 
     /**
+     * 消息的唯一id（占8字节）
+     * */
+    private long messageId;
+
+    /**
      * 接口名
      * */
     private String interfaceName;

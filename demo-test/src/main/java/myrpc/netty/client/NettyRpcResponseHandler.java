@@ -8,13 +8,16 @@ import myrpc.netty.message.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RpcResponseHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcResponse>> {
+/**
+ * 客户端 rpc响应处理器
+ * @author shanreng
+ */
+public class NettyRpcResponseHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcResponse>> {
 
     private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
-
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcResponse> rpcResponseMessageProtocol) throws Exception {
-        logger.info("channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
+        logger.info("NettyRpcResponseHandler channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
     }
 }

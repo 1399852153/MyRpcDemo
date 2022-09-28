@@ -18,7 +18,7 @@ public class MessageCodecTest {
         messageHeader.setEventFlag(true);
         messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
         messageHeader.setResponseStatus((byte)'a');
-        messageHeader.setMessageUUId(123456789L);
+        messageHeader.setMessageId(123456789L);
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName("com.aaa.bcd");

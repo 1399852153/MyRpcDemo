@@ -13,10 +13,9 @@ public class MessageCodecUtil {
      * 报文协议编码
      * */
     public static <T> void messageEncode(MessageProtocol<T> messageProtocol, ByteBuf byteBuf) {
-
         MessageHeader messageHeader = messageProtocol.getMessageHeader();
         // 写入魔数
-        byteBuf.writeBytes(MessageHeader.MAGIC);
+        byteBuf.writeShort(MessageHeader.MAGIC);
 
         // 写入消息标识
         byteBuf.writeBoolean(messageHeader.getMessageFlag());
@@ -31,7 +30,7 @@ public class MessageCodecUtil {
         // 写入响应状态
         byteBuf.writeByte(messageHeader.getResponseStatus());
         // 写入消息uuid
-        byteBuf.writeLong(messageHeader.getMessageUUId());
+        byteBuf.writeLong(messageHeader.getMessageId());
 
         // todo 暂时写死json序列化，后续再抽象
         String jsonStr = JsonUtil.obj2Str(messageProtocol.getBizDataBody());
@@ -48,7 +47,7 @@ public class MessageCodecUtil {
     public static MessageHeader messageHeaderDecode(ByteBuf byteBuf){
         MessageHeader messageHeader = new MessageHeader();
         // 读取魔数
-        messageHeader.setMagicNumber(new byte[]{byteBuf.readByte(),byteBuf.readByte()});
+        messageHeader.setMagicNumber(byteBuf.readShort());
         // 读取消息标识
         messageHeader.setMessageFlag(byteBuf.readBoolean());
         // 读取单/双向标识
@@ -66,7 +65,7 @@ public class MessageCodecUtil {
         // 读取响应状态
         messageHeader.setResponseStatus(byteBuf.readByte());
         // 读取消息uuid
-        messageHeader.setMessageUUId(byteBuf.readLong());
+        messageHeader.setMessageId(byteBuf.readLong());
 
         // 读取消息正文长度
         int bizDataLength = byteBuf.readInt();

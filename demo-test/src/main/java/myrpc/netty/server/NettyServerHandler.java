@@ -1,24 +1,19 @@
 package myrpc.netty.server;
 
-import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.SimpleChannelInboundHandler;
+import myrpc.common.JsonUtil;
+import myrpc.netty.message.model.MessageProtocol;
+import myrpc.netty.message.model.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-@io.netty.channel.ChannelHandler.Sharable
-public class NettyServerHandler extends ChannelDuplexHandler {
+public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcRequest>> {
 
     private static Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        logger.info("NettyServerHandler channelActive");
-        super.channelActive(ctx);
-    }
-
-    @Override
-    public void read(ChannelHandlerContext ctx) throws Exception {
-        logger.info("NettyServerHandler read");
-        super.read(ctx);
+    protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
+        logger.info("NettyServerHandler channelRead0={}", JsonUtil.obj2Str(rpcRequestMessageProtocol));
     }
 }

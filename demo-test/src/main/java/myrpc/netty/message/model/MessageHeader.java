@@ -7,16 +7,13 @@ public class MessageHeader {
 
     public static final int MESSAGE_HEADER_LENGTH = 16;
     public static final int MESSAGE_SERIALIZE_TYPE_LENGTH = 5;
-    public static final byte MAGIC_HIGH = (byte)0x22;
-    public static final byte MAGIC_LOW = (byte)0x33;
-    public static final byte[] MAGIC = new byte[]{MAGIC_HIGH,MAGIC_LOW};
-
+    public static final short MAGIC = (short)0x2233;
 
     // ================================ 消息头 =================================
     /**
      * 魔数(占2字节)
      * */
-    private byte[] magicNumber = MAGIC;
+    private short magicNumber = MAGIC;
 
     /**
      * 消息标识(0代表请求事件；1代表响应事件， 占1位)
@@ -49,18 +46,18 @@ public class MessageHeader {
     /**
      * 消息的唯一id（占8字节）
      * */
-    private long messageUUId;
+    private long messageId;
 
     /**
      * 业务数据长度（占4字节）
      * */
     private int bizDataLength;
 
-    public byte[] getMagicNumber() {
+    public short getMagicNumber() {
         return magicNumber;
     }
 
-    public void setMagicNumber(byte[] magicNumber) {
+    public void setMagicNumber(short magicNumber) {
         this.magicNumber = magicNumber;
     }
 
@@ -104,12 +101,12 @@ public class MessageHeader {
         this.responseStatus = responseStatus;
     }
 
-    public long getMessageUUId() {
-        return messageUUId;
+    public long getMessageId() {
+        return messageId;
     }
 
-    public void setMessageUUId(long messageUUId) {
-        this.messageUUId = messageUUId;
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
     }
 
     public int getBizDataLength() {
