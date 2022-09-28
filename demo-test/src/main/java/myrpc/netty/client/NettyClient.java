@@ -1,6 +1,7 @@
 package myrpc.netty.client;
 
 import io.netty.bootstrap.Bootstrap;
+import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.EventLoopGroup;
@@ -26,34 +27,59 @@ public class NettyClient {
 
     private static int DEFAULT_IO_THREADS = Math.min(Runtime.getRuntime().availableProcessors() + 1, 32);
 
-    public static void main(String[] args) throws UnknownHostException, InterruptedException {
-        Bootstrap bootstrap = new Bootstrap();
-        EventLoopGroup eventLoopGroup = new NioEventLoopGroup(DEFAULT_IO_THREADS,
-                new DefaultThreadFactory("NettyClientWorker", true));
+    private final String serverAddress;
+    private final int port;
+    private Bootstrap bootstrap;
 
-        bootstrap.group(eventLoopGroup)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel socketChannel) {
-                        socketChannel.pipeline()
-                                // 编码、解码处理器
-                                .addLast("decoder",new NettyEncoder<MessageProtocol<RpcRequest>>())
-                                .addLast("encoder",new NettyEncoder<>())
-                                // 心跳处理器
+    public NettyClient(String serverAddress, int port) {
+        this.serverAddress = serverAddress;
+        this.port = port;
+    }
+
+    public void init(){
+        if(this.bootstrap == null) {
+            Bootstrap bootstrap = new Bootstrap();
+            EventLoopGroup eventLoopGroup = new NioEventLoopGroup(DEFAULT_IO_THREADS,
+                    new DefaultThreadFactory("NettyClientWorker", true));
+
+            bootstrap.group(eventLoopGroup)
+                    .channel(NioSocketChannel.class)
+                    .handler(new ChannelInitializer<SocketChannel>() {
+                        @Override
+                        protected void initChannel(SocketChannel socketChannel) {
+                            socketChannel.pipeline()
+                                    // 编码、解码处理器
+                                    .addLast("decoder", new NettyEncoder<MessageProtocol<RpcRequest>>())
+                                    .addLast("encoder", new NettyEncoder<>())
+                                    // 心跳处理器
 //                                .addLast("server-idle-handler",
 //                                        new IdleStateHandler(0, 0, 5, MILLISECONDS))
-                                // 实际调用业务方法的处理器
-                                .addLast("clientHandler",new NettyRpcResponseHandler())
-                        ;
-                    }
-                });
+                                    // 实际调用业务方法的处理器
+                                    .addLast("clientHandler", new NettyRpcResponseHandler())
+                            ;
+                        }
+                    });
 
+            this.bootstrap = bootstrap;
+        }
+    }
+
+    public ChannelFuture connectAsync(){
+        return bootstrap.connect(serverAddress, port);
+    }
+
+    public Channel connectSync() throws InterruptedException {
+        return bootstrap.connect(serverAddress, port).sync().channel();
+    }
+
+    public static void main(String[] args) throws UnknownHostException, InterruptedException {
         String serverAddress = InetAddress.getLocalHost().getHostAddress();
         int port = 8080;
-        ChannelFuture channelFuture = bootstrap.connect(serverAddress, 8080).sync();
-        logger.info("client connected addr {} started on port {}", serverAddress, port);
 
+        NettyClient nettyClient = new NettyClient(serverAddress,8080);
+        nettyClient.init();
+        ChannelFuture channelFuture = nettyClient.connectAsync().sync();
+        logger.info("client connected addr {} started on port {}", serverAddress, port);
         MessageHeader messageHeader = new MessageHeader();
         messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
         messageHeader.setTwoWayFlag(false);
@@ -72,6 +98,5 @@ public class NettyClient {
         MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
         channelFuture.channel().writeAndFlush(messageProtocol);
         channelFuture.channel().closeFuture().sync();
-
     }
 }
