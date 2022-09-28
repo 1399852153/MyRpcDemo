@@ -9,6 +9,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
+import myrpc.common.URLAddress;
 import myrpc.netty.message.codec.NettyEncoder;
 import myrpc.netty.message.enums.MessageFlagEnums;
 import myrpc.netty.message.enums.MessageSerializeType;
@@ -27,13 +28,11 @@ public class NettyClient {
 
     private static int DEFAULT_IO_THREADS = Math.min(Runtime.getRuntime().availableProcessors() + 1, 32);
 
-    private final String serverAddress;
-    private final int port;
+    private final URLAddress urlAddress;
     private Bootstrap bootstrap;
 
-    public NettyClient(String serverAddress, int port) {
-        this.serverAddress = serverAddress;
-        this.port = port;
+    public NettyClient(URLAddress urlAddress) {
+        this.urlAddress = urlAddress;
     }
 
     public void init(){
@@ -65,18 +64,18 @@ public class NettyClient {
     }
 
     public ChannelFuture connectAsync(){
-        return bootstrap.connect(serverAddress, port);
+        return bootstrap.connect(urlAddress.getHost(), urlAddress.getPort());
     }
 
     public Channel connectSync() throws InterruptedException {
-        return bootstrap.connect(serverAddress, port).sync().channel();
+        return connectAsync().sync().channel();
     }
 
     public static void main(String[] args) throws UnknownHostException, InterruptedException {
         String serverAddress = InetAddress.getLocalHost().getHostAddress();
         int port = 8080;
 
-        NettyClient nettyClient = new NettyClient(serverAddress,8080);
+        NettyClient nettyClient = new NettyClient(new URLAddress(serverAddress,8080));
         nettyClient.init();
         ChannelFuture channelFuture = nettyClient.connectAsync().sync();
         logger.info("client connected addr {} started on port {}", serverAddress, port);

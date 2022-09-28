@@ -1,5 +1,7 @@
 package myrpc.netty.client;
 
+import myrpc.common.URLAddress;
+
 import java.util.concurrent.ConcurrentHashMap;
 
 public class NettyClientFactory {
@@ -18,7 +20,7 @@ public class NettyClientFactory {
                 }
 
                 // 双重检查
-                NettyClient newNettyClient = new NettyClient(serverAddress,port);
+                NettyClient newNettyClient = new NettyClient(new URLAddress(serverAddress,port));
                 newNettyClient.init();
                 nettyClientCache.put(serverAddress,newNettyClient);
                 return newNettyClient;
