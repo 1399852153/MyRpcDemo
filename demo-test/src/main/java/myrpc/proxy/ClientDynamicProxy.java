@@ -38,7 +38,7 @@ public class ClientDynamicProxy implements InvocationHandler {
         rpcRequest.setParameterClasses(method.getParameterTypes());
         rpcRequest.setParams(args);
 
-        // 通过Promise，将netty的异步转为同步
+        // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
 //        Promise<MessageProtocol<RpcResponse>> responsePromise = new DefaultPromise<>(LocalRpcResponseCache.executorService);
 
         nettyClient.getChannel().writeAndFlush(rpcRequest).sync();
