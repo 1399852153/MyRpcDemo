@@ -10,32 +10,48 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import myrpc.common.URLAddress;
+import myrpc.exception.MyRpcRemotingException;
 import myrpc.netty.message.codec.NettyEncoder;
-import myrpc.netty.message.enums.MessageFlagEnums;
-import myrpc.netty.message.enums.MessageSerializeType;
-import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 
 public class NettyClient {
-
-    private static Logger logger = LoggerFactory.getLogger(NettyClient.class);
 
     private static int DEFAULT_IO_THREADS = Math.min(Runtime.getRuntime().availableProcessors() + 1, 32);
 
     private final URLAddress urlAddress;
     private Bootstrap bootstrap;
+    private Channel channel;
 
     public NettyClient(URLAddress urlAddress) {
         this.urlAddress = urlAddress;
     }
 
-    public void init(){
+    public void init() {
+        try {
+            doOpen();
+            doConnect();
+        }catch (Exception e){
+            throw new MyRpcRemotingException("NettyClient init error",e);
+        }
+    }
+
+    public Channel getChannel(){
+        return this.channel;
+    }
+
+    public void send(RpcRequest rpcRequest) throws InterruptedException {
+        // 很多case没考虑到，可以参考dubbo的NettyChannel.send方法
+        ChannelFuture channelFuture = channel.writeAndFlush(rpcRequest);
+        channelFuture.sync();
+
+        Throwable cause = channelFuture.cause();
+        if (cause != null) {
+            throw new MyRpcRemotingException("NettyClient send error",cause);
+        }
+    }
+
+    private void doOpen(){
         if(this.bootstrap == null) {
             Bootstrap bootstrap = new Bootstrap();
             EventLoopGroup eventLoopGroup = new NioEventLoopGroup(DEFAULT_IO_THREADS,
@@ -63,39 +79,10 @@ public class NettyClient {
         }
     }
 
-    public ChannelFuture connectAsync(){
-        return bootstrap.connect(urlAddress.getHost(), urlAddress.getPort());
-    }
+    private void doConnect() throws InterruptedException {
+        ChannelFuture future = bootstrap.connect(urlAddress.getHost(), urlAddress.getPort());
 
-    public Channel connectSync() throws InterruptedException {
-        return connectAsync().sync().channel();
-    }
-
-    public static void main(String[] args) throws UnknownHostException, InterruptedException {
-        String serverAddress = InetAddress.getLocalHost().getHostAddress();
-        int port = 8080;
-
-        NettyClient nettyClient = new NettyClient(new URLAddress(serverAddress,8080));
-        nettyClient.init();
-        ChannelFuture channelFuture = nettyClient.connectAsync().sync();
-        logger.info("client connected addr {} started on port {}", serverAddress, port);
-        MessageHeader messageHeader = new MessageHeader();
-        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
-        messageHeader.setTwoWayFlag(false);
-        messageHeader.setEventFlag(true);
-        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
-        messageHeader.setResponseStatus((byte)'a');
-        messageHeader.setMessageId(123456789L);
-
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setInterfaceName("com.aaa.bcd");
-        rpcRequest.setMethodName("echo");
-        rpcRequest.setParameterClasses(new Class[]{String.class});
-        rpcRequest.setParams(new Object[]{"name1"});
-        rpcRequest.setReturnClass(String.class);
-
-        MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
-        channelFuture.channel().writeAndFlush(messageProtocol);
-        channelFuture.channel().closeFuture().sync();
+        // 写的很简单，异常case都没考虑（可以参考NettyClient.doConnect实现）
+        this.channel = future.sync().channel();
     }
 }
