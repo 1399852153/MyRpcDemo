@@ -20,10 +20,10 @@ public class MyTest {
 
     @Test
     public void testDynamicProxy(){
-        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy(new HelloServiceImpl());
+        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy();
 
         HelloService helloService = (HelloService) Proxy.newProxyInstance(
-                clientDynamicProxy.getClass().getClassLoader(),HelloServiceImpl.class.getInterfaces(), clientDynamicProxy);
+                clientDynamicProxy.getClass().getClassLoader(),new Class[]{HelloService.class}, clientDynamicProxy);
         helloService.sayHello();
         String result = helloService.echo("666!");
         System.out.println("result=" + result);

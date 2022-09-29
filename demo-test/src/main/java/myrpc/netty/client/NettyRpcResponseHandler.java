@@ -19,5 +19,7 @@ public class NettyRpcResponseHandler extends SimpleChannelInboundHandler<Message
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcResponse> rpcResponseMessageProtocol) throws Exception {
         logger.info("NettyRpcResponseHandler channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
+
+
     }
 }

@@ -1,9 +1,16 @@
 package myrpc.proxy;
 
+import io.netty.util.concurrent.DefaultPromise;
+import io.netty.util.concurrent.Promise;
 import myrpc.common.URLAddress;
+import myrpc.netty.client.LocalRpcResponseCache;
 import myrpc.netty.client.NettyClient;
 import myrpc.netty.client.NettyClientFactory;
+import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
+import myrpc.netty.message.model.RpcResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -14,11 +21,7 @@ import java.net.InetAddress;
  * */
 public class ClientDynamicProxy implements InvocationHandler {
 
-    private Object target;
-
-    public ClientDynamicProxy(Object target) {
-        this.target = target;
-    }
+    private static Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -30,13 +33,19 @@ public class ClientDynamicProxy implements InvocationHandler {
         NettyClient nettyClient = NettyClientFactory.getNettyClient(new URLAddress(serverAddress,port));
 
         RpcRequest rpcRequest = new RpcRequest();
-//        rpcRequest.set
+        rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
+        rpcRequest.setMethodName(method.getName());
+        rpcRequest.setParameterClasses(method.getParameterTypes());
+        rpcRequest.setParams(args);
 
-//        nettyClient.getChannel()
+        // 通过Promise，将netty的异步转为同步
+//        Promise<MessageProtocol<RpcResponse>> responsePromise = new DefaultPromise<>(LocalRpcResponseCache.executorService);
 
-        Object result = method.invoke(target,args);
+        nettyClient.getChannel().writeAndFlush(rpcRequest).sync();
+
         System.out.println("DynamicProxy after: methodName=" + method.getName());
 
-        return result;
+//        MessageProtocol<RpcResponse> response = responsePromise.get();
+        return null;
     }
 }

@@ -1,16 +1,19 @@
 package myrpc.netty.message.model;
 
 import java.lang.reflect.Type;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * rpc请求对象
  * */
 public class RpcRequest {
 
+    private static final AtomicLong INVOKE_ID = new AtomicLong(0);
+
     /**
      * 消息的唯一id（占8字节）
      * */
-    private long messageId;
+    private final long messageId;
 
     /**
      * 接口名
@@ -32,16 +35,14 @@ public class RpcRequest {
      * */
     private Object[] params;
 
-    /**
-     * 返回值类型
-     * */
-    private Class<?> returnClass;
+    public RpcRequest() {
+        // 每个请求对象生成时都自动生成、单机全局唯一的自增id
+        this.messageId = INVOKE_ID.get();
+    }
 
-    /**
-     * 返回值泛型类型
-     * */
-    private Type[] returnType;
-
+    public long getMessageId() {
+        return messageId;
+    }
 
     public String getInterfaceName() {
         return interfaceName;
@@ -73,21 +74,5 @@ public class RpcRequest {
 
     public void setParams(Object[] params) {
         this.params = params;
-    }
-
-    public Class<?> getReturnClass() {
-        return returnClass;
-    }
-
-    public void setReturnClass(Class<?> returnClass) {
-        this.returnClass = returnClass;
-    }
-
-    public Type[] getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(Type[] returnType) {
-        this.returnType = returnType;
     }
 }
