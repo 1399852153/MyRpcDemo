@@ -6,6 +6,10 @@ import myrpc.common.URLAddress;
 import myrpc.exchange.DefaultFuture;
 import myrpc.netty.client.NettyClient;
 import myrpc.netty.client.NettyClientFactory;
+import myrpc.netty.message.enums.MessageFlagEnums;
+import myrpc.netty.message.enums.MessageSerializeType;
+import myrpc.netty.message.model.MessageHeader;
+import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,6 +34,14 @@ public class ClientDynamicProxy implements InvocationHandler {
         int port = 8080;
         NettyClient nettyClient = NettyClientFactory.getNettyClient(new URLAddress(serverAddress,port));
 
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
+        messageHeader.setTwoWayFlag(false);
+        messageHeader.setEventFlag(true);
+        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
+        messageHeader.setResponseStatus((byte)'a');
+        messageHeader.setMessageId(123456789L);
+
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
@@ -42,7 +54,7 @@ public class ClientDynamicProxy implements InvocationHandler {
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
         DefaultFuture defaultFuture = new DefaultFuture(channel,rpcRequest);
 
-        channel.writeAndFlush(rpcRequest).sync();
+        channel.writeAndFlush(new MessageProtocol<>(messageHeader,rpcRequest)).sync();
 
         logger.info("ClientDynamicProxy writeAndFlush success, wait result");
 

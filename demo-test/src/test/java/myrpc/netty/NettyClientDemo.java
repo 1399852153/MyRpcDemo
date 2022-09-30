@@ -8,9 +8,12 @@ import myrpc.netty.message.enums.MessageSerializeType;
 import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
+import myrpc.proxy.ClientDynamicProxy;
+import myrpc.service.HelloService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.lang.reflect.Proxy;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 
@@ -18,31 +21,12 @@ public class NettyClientDemo {
 
     private static Logger logger = LoggerFactory.getLogger(NettyClientDemo.class);
 
-    public static void main(String[] args) throws UnknownHostException, InterruptedException {
-        String serverAddress = InetAddress.getLocalHost().getHostAddress();
-        int port = 8080;
+    public static void main(String[] args){
+        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy();
 
-        NettyClient nettyClient = new NettyClient(new URLAddress(serverAddress,8080));
-        nettyClient.init();
-        logger.info("client connected addr {} started on port {}", serverAddress, port);
-        MessageHeader messageHeader = new MessageHeader();
-        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
-        messageHeader.setTwoWayFlag(false);
-        messageHeader.setEventFlag(true);
-        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
-        messageHeader.setResponseStatus((byte)'a');
-        messageHeader.setMessageId(123456789L);
-
-        RpcRequest rpcRequest = new RpcRequest();
-        rpcRequest.setInterfaceName("com.aaa.bcd");
-        rpcRequest.setMethodName("echo");
-        rpcRequest.setParameterClasses(new Class[]{String.class});
-        rpcRequest.setParams(new Object[]{"name1"});
-        rpcRequest.setReturnClass(String.class);
-
-        Channel channel = nettyClient.getChannel();
-        MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
-        channel.writeAndFlush(messageProtocol);
-        channel.closeFuture().sync();
+        HelloService helloService = (HelloService) Proxy.newProxyInstance(
+                clientDynamicProxy.getClass().getClassLoader(),new Class[]{HelloService.class}, clientDynamicProxy);
+        String result = helloService.echo("666!");
+        System.out.println("result=" + result);
     }
 }

@@ -25,7 +25,6 @@ public class MessageCodecTest {
         rpcRequest.setMethodName("echo");
         rpcRequest.setParameterClasses(new Class[]{String.class});
         rpcRequest.setParams(new Object[]{"name1"});
-        rpcRequest.setReturnClass(String.class);
 
         MessageProtocol<RpcRequest> messageProtocol = new MessageProtocol<>(messageHeader,rpcRequest);
 
