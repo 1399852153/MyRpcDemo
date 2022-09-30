@@ -3,6 +3,7 @@ package myrpc.netty.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import myrpc.common.JsonUtil;
+import myrpc.exchange.DefaultFutureCaches;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcResponse;
 import org.slf4j.Logger;
@@ -20,6 +21,7 @@ public class NettyRpcResponseHandler extends SimpleChannelInboundHandler<Message
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcResponse> rpcResponseMessageProtocol) throws Exception {
         logger.info("NettyRpcResponseHandler channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
 
-
+        // 触发客户端的future，令其同步阻塞的线程得到结果
+        DefaultFutureCaches.received(rpcResponseMessageProtocol.getBizDataBody());
     }
 }

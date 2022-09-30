@@ -1,14 +1,12 @@
 package myrpc.proxy;
 
-import io.netty.util.concurrent.DefaultPromise;
-import io.netty.util.concurrent.Promise;
+import io.netty.channel.Channel;
+import myrpc.common.JsonUtil;
 import myrpc.common.URLAddress;
-import myrpc.netty.client.LocalRpcResponseCache;
+import myrpc.exchange.DefaultFuture;
 import myrpc.netty.client.NettyClient;
 import myrpc.netty.client.NettyClientFactory;
-import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
-import myrpc.netty.message.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,7 +23,7 @@ public class ClientDynamicProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        System.out.println("DynamicProxy before: methodName=" + method.getName());
+        logger.info("ClientDynamicProxy before: methodName=" + method.getName());
 
         // 服务端信息暂时写死，后续从注册中心中获取
         String serverAddress = InetAddress.getLocalHost().getHostAddress();
@@ -38,14 +36,20 @@ public class ClientDynamicProxy implements InvocationHandler {
         rpcRequest.setParameterClasses(method.getParameterTypes());
         rpcRequest.setParams(args);
 
+        logger.info("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
+
+        Channel channel = nettyClient.getChannel();
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
-//        Promise<MessageProtocol<RpcResponse>> responsePromise = new DefaultPromise<>(LocalRpcResponseCache.executorService);
+        DefaultFuture defaultFuture = new DefaultFuture(channel,rpcRequest);
 
-        nettyClient.getChannel().writeAndFlush(rpcRequest).sync();
+        channel.writeAndFlush(rpcRequest).sync();
 
-        System.out.println("DynamicProxy after: methodName=" + method.getName());
+        logger.info("ClientDynamicProxy writeAndFlush success, wait result");
 
-//        MessageProtocol<RpcResponse> response = responsePromise.get();
-        return null;
+        Object result = defaultFuture.get();
+
+        logger.info("ClientDynamicProxy defaultFuture.get() result={}",result);
+
+        return result;
     }
 }

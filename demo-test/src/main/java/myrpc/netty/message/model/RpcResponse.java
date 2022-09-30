@@ -15,4 +15,28 @@ public class RpcResponse {
      * 异常值
      */
     private Exception exceptionValue;
+
+    public long getMessageId() {
+        return messageId;
+    }
+
+    public void setMessageId(long messageId) {
+        this.messageId = messageId;
+    }
+
+    public Object getReturnValue() {
+        return returnValue;
+    }
+
+    public void setReturnValue(Object returnValue) {
+        this.returnValue = returnValue;
+    }
+
+    public Exception getExceptionValue() {
+        return exceptionValue;
+    }
+
+    public void setExceptionValue(Exception exceptionValue) {
+        this.exceptionValue = exceptionValue;
+    }
 }
