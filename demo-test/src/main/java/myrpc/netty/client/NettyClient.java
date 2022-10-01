@@ -11,9 +11,11 @@ import io.netty.channel.socket.nio.NioSocketChannel;
 import io.netty.util.concurrent.DefaultThreadFactory;
 import myrpc.common.URLAddress;
 import myrpc.exception.MyRpcRemotingException;
+import myrpc.netty.message.codec.NettyDecoder;
 import myrpc.netty.message.codec.NettyEncoder;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
+import myrpc.netty.message.model.RpcResponse;
 
 public class NettyClient {
 
@@ -40,9 +42,9 @@ public class NettyClient {
         return this.channel;
     }
 
-    public void send(RpcRequest rpcRequest) throws InterruptedException {
+    public void send(Object message) throws InterruptedException {
         // 很多case没考虑到，可以参考dubbo的NettyChannel.send方法
-        ChannelFuture channelFuture = channel.writeAndFlush(rpcRequest);
+        ChannelFuture channelFuture = channel.writeAndFlush(message);
         channelFuture.sync();
 
         Throwable cause = channelFuture.cause();
@@ -64,11 +66,11 @@ public class NettyClient {
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline()
                                     // 编码、解码处理器
-                                    .addLast("decoder", new NettyEncoder<MessageProtocol<RpcRequest>>())
-                                    .addLast("encoder", new NettyEncoder<>())
+                                    .addLast("decoder", new NettyDecoder())
                                     // 心跳处理器
 //                                .addLast("server-idle-handler",
 //                                        new IdleStateHandler(0, 0, 5, MILLISECONDS))
+                                    .addLast("encoder", new NettyEncoder<>())
                                     // 实际调用业务方法的处理器
                                     .addLast("clientHandler", new NettyRpcResponseHandler())
                             ;

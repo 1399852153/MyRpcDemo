@@ -11,6 +11,7 @@ import myrpc.netty.message.enums.MessageSerializeType;
 import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
+import myrpc.netty.message.model.RpcResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,6 +28,10 @@ public class ClientDynamicProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        if(method.getName().equals("toString")){
+            return "";
+        }
+
         logger.info("ClientDynamicProxy before: methodName=" + method.getName());
 
         // 服务端信息暂时写死，后续从注册中心中获取
@@ -34,34 +39,34 @@ public class ClientDynamicProxy implements InvocationHandler {
         int port = 8080;
         NettyClient nettyClient = NettyClientFactory.getNettyClient(new URLAddress(serverAddress,port));
 
-        MessageHeader messageHeader = new MessageHeader();
-        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
-        messageHeader.setTwoWayFlag(false);
-        messageHeader.setEventFlag(true);
-        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
-        messageHeader.setResponseStatus((byte)'a');
-        messageHeader.setMessageId(123456789L);
-
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
         rpcRequest.setMethodName(method.getName());
         rpcRequest.setParameterClasses(method.getParameterTypes());
         rpcRequest.setParams(args);
 
+        MessageHeader messageHeader = new MessageHeader();
+        messageHeader.setMessageFlag(MessageFlagEnums.REQUEST.getCode());
+        messageHeader.setTwoWayFlag(false);
+        messageHeader.setEventFlag(true);
+        messageHeader.setSerializeType(MessageSerializeType.HESSIAN.getCode());
+        messageHeader.setResponseStatus((byte)'a');
+        messageHeader.setMessageId(rpcRequest.getMessageId());
+
         logger.info("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
 
         Channel channel = nettyClient.getChannel();
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
-        DefaultFuture defaultFuture = new DefaultFuture(channel,rpcRequest);
+        DefaultFuture<RpcResponse> defaultFuture = new DefaultFuture<>(channel,rpcRequest);
 
-        channel.writeAndFlush(new MessageProtocol<>(messageHeader,rpcRequest)).sync();
+        nettyClient.send(new MessageProtocol<>(messageHeader,rpcRequest));
 
         logger.info("ClientDynamicProxy writeAndFlush success, wait result");
 
-        Object result = defaultFuture.get();
+        RpcResponse result = defaultFuture.get();
 
         logger.info("ClientDynamicProxy defaultFuture.get() result={}",result);
 
-        return result;
+        return result.getReturnValue();
     }
 }
