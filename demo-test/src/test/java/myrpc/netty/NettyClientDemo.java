@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Proxy;
+import java.util.concurrent.locks.LockSupport;
 
 public class NettyClientDemo {
 
@@ -18,5 +19,10 @@ public class NettyClientDemo {
                 clientDynamicProxy.getClass().getClassLoader(),new Class[]{HelloService.class}, clientDynamicProxy);
         String result = helloService.echo("666!");
         System.out.println("result=" + result);
+
+        helloService.sayHello();
+
+        System.out.println("client demo永久阻塞");
+        LockSupport.park();
     }
 }
