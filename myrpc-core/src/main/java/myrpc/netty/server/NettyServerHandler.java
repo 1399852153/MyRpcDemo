@@ -9,8 +9,12 @@ import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import myrpc.netty.message.model.RpcResponse;
+import myrpc.provider.Provider;
+import myrpc.provider.ProviderManager;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.lang.reflect.Method;
 
 public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcRequest>> {
 
@@ -28,7 +32,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
         channelHandlerContext.channel().writeAndFlush(responseMessage);
     }
 
-    public MessageProtocol<RpcResponse> getResponseMessage(MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
+    private MessageProtocol<RpcResponse> getResponseMessage(MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
         long requestMessageId = rpcRequestMessageProtocol.getMessageHeader().getMessageId();
 
         MessageHeader messageHeader = new MessageHeader();
@@ -41,9 +45,34 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
 
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setMessageId(requestMessageId);
-        // 暂时写死，后续优化为反射调用具体的实现类
-        rpcResponse.setReturnValue("server echo");
+
+        try {
+            // 反射调用具体的实现类
+            Object result = invokeTargetService(rpcRequestMessageProtocol.getBizDataBody());
+
+            // 设置返回值
+            rpcResponse.setReturnValue(result);
+        }catch (Exception e){
+            logger.warn("invokeTargetService error",e);
+
+            // 调用具体实现类时，出现异常，设置异常的值
+            rpcResponse.setExceptionValue(e);
+        }
 
         return new MessageProtocol<>(messageHeader,rpcResponse);
     }
+
+    private Object invokeTargetService(RpcRequest rpcRequest) throws Exception {
+        String interfaceClassName = rpcRequest.getInterfaceName();
+
+        // 从provider的缓存中获得
+        Provider provider = ProviderManager.getProvider(interfaceClassName);
+        Object ref = provider.getRef();
+        final Method method = ref.getClass().getMethod(rpcRequest.getMethodName(), rpcRequest.getParameterClasses());
+
+        Object result = method.invoke(ref, rpcRequest.getParams());
+
+        return result;
+    }
+
 }
