@@ -13,9 +13,6 @@ import myrpc.common.URLAddress;
 import myrpc.exception.MyRpcRemotingException;
 import myrpc.netty.message.codec.NettyDecoder;
 import myrpc.netty.message.codec.NettyEncoder;
-import myrpc.netty.message.model.MessageProtocol;
-import myrpc.netty.message.model.RpcRequest;
-import myrpc.netty.message.model.RpcResponse;
 
 public class NettyClient {
 

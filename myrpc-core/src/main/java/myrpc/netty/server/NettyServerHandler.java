@@ -23,6 +23,8 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
         MessageProtocol<RpcResponse> responseMessage = getResponseMessage(rpcRequestMessageProtocol);
 
         logger.info("NettyServerHandler write responseMessage={}", JsonUtil.obj2Str(responseMessage));
+
+
         channelHandlerContext.channel().writeAndFlush(responseMessage);
     }
 

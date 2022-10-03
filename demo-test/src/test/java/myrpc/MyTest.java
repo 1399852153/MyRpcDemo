@@ -1,7 +1,7 @@
 package myrpc;
 
 import myrpc.proxy.ClientDynamicProxy;
-import myrpc.service.HelloService;
+import service.HelloService;
 import org.junit.Test;
 
 import java.lang.reflect.Proxy;

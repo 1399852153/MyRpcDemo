@@ -1,4 +1,4 @@
-package myrpc.service;
+package service;
 
 public interface HelloService {
 
