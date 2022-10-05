@@ -1,9 +1,14 @@
 package myrpc.provider;
 
+import myrpc.common.URLAddress;
+import myrpc.registry.Registry;
+
 public class Provider<T> {
 
     private Class<?> interfaceClass;
     private T ref;
+    private URLAddress urlAddress;
+    private Registry registry;
 
     public Class<?> getInterfaceClass() {
         return interfaceClass;
@@ -21,4 +26,27 @@ public class Provider<T> {
         this.ref = ref;
     }
 
+    public URLAddress getUrlAddress() {
+        return urlAddress;
+    }
+
+    public void setUrlAddress(URLAddress urlAddress) {
+        this.urlAddress = urlAddress;
+    }
+
+    public Registry getRegistry() {
+        return registry;
+    }
+
+    public void setRegistry(Registry registry) {
+        this.registry = registry;
+    }
+
+    public void export(){
+        // 放入本地的provider緩存中
+        ProviderManager.putProvider(this.interfaceClass.getName(),this);
+
+        // 注冊到注冊中心
+        this.registry.doRegistry(this.interfaceClass.getName(),this.urlAddress);
+    }
 }

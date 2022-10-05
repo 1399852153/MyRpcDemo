@@ -19,7 +19,7 @@ public class ProviderManager {
         return provider;
     }
 
-    public static void putProvider(String name, Provider luProvider) {
-        providerMapCache.put(name, luProvider);
+    public static void putProvider(String name, Provider provider) {
+        providerMapCache.put(name, provider);
     }
 }

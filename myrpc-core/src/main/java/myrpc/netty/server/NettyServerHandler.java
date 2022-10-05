@@ -15,21 +15,32 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.Method;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.TimeUnit;
 
 public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcRequest>> {
 
     private static Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
 
+    /**
+     * 处理实际的业务请求的线程池(简单起见，直接写死参数配置)
+     * */
+    private final ThreadPoolExecutor bizTaskExecutor =
+            new ThreadPoolExecutor(20, 20, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2000));
+
+
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
         logger.info("NettyServerHandler channelRead0={}", JsonUtil.obj2Str(rpcRequestMessageProtocol));
 
-        MessageProtocol<RpcResponse> responseMessage = getResponseMessage(rpcRequestMessageProtocol);
+        // 用线程池处理实际的业务请求,避免耗时业务操作阻塞NIO事件循环
+        bizTaskExecutor.execute(()->{
+            MessageProtocol<RpcResponse> responseMessage = getResponseMessage(rpcRequestMessageProtocol);
+            logger.info("NettyServerHandler write responseMessage={}", JsonUtil.obj2Str(responseMessage));
+            channelHandlerContext.channel().writeAndFlush(responseMessage);
+        });
 
-        logger.info("NettyServerHandler write responseMessage={}", JsonUtil.obj2Str(responseMessage));
-
-
-        channelHandlerContext.channel().writeAndFlush(responseMessage);
     }
 
     private MessageProtocol<RpcResponse> getResponseMessage(MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
@@ -74,5 +85,4 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
 
         return result;
     }
-
 }

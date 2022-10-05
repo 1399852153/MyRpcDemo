@@ -12,12 +12,15 @@ import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import myrpc.netty.message.model.RpcResponse;
+import myrpc.registry.LocalFileRegistry;
+import myrpc.registry.Registry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
+import java.util.List;
 
 /**
  * 客户端动态代理
@@ -25,6 +28,9 @@ import java.net.InetAddress;
 public class ClientDynamicProxy implements InvocationHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
+
+    private static Registry registry = new LocalFileRegistry();
+
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
@@ -34,10 +40,10 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         logger.info("ClientDynamicProxy before: methodName=" + method.getName());
 
-        // 服务端信息暂时写死，后续从注册中心中获取
-        String serverAddress = InetAddress.getLocalHost().getHostAddress();
-        int port = 8080;
-        NettyClient nettyClient = NettyClientFactory.getNettyClient(new URLAddress(serverAddress,port));
+        String serviceName = method.getDeclaringClass().getName();
+        List<URLAddress> serverUrlAddress = registry.getURLAddress(serviceName);
+        // 暂时get(0)写死，后续引入负载均衡
+        NettyClient nettyClient = NettyClientFactory.getNettyClient(serverUrlAddress.get(0));
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName(method.getDeclaringClass().getName());
