@@ -34,8 +34,20 @@ public class ClientDynamicProxy implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        if(method.getName().equals("toString")){
-            return "";
+        // 处理toString等对象自带方法，不发起rpc调用
+        if (method.getDeclaringClass() == Object.class) {
+            return method.invoke(proxy, args);
+        }
+        String methodName = method.getName();
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (parameterTypes.length == 0) {
+            if ("toString".equals(methodName)) {
+                return proxy.toString();
+            } else if ("hashCode".equals(methodName)) {
+                return proxy.hashCode();
+            }
+        } else if (parameterTypes.length == 1 && "equals".equals(methodName)) {
+            return proxy.equals(args[0]);
         }
 
         logger.info("ClientDynamicProxy before: methodName=" + method.getName());
