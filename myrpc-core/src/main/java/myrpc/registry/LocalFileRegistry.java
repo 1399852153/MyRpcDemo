@@ -46,11 +46,6 @@ public class LocalFileRegistry implements Registry{
     }
 
     @Override
-    public void doSubscribe() {
-        logger.warn("LocalFileRegistry 暂时不支持 doSubscribe操作");
-    }
-
-    @Override
     public List<ServiceInfo> discovery(String serviceName) {
         if(!registerServiceCache.containsKey(serviceName)){
             readFromLocalFile();

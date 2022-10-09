@@ -73,13 +73,9 @@ public class ZookeeperRegistry implements Registry{
     }
 
     @Override
-    public void doSubscribe() {
-        // TODO 待实现
-    }
-
-    @Override
     public List<ServiceInfo> discovery(String serviceName){
         try {
+            // 内部已经实现了provider信息变更的订阅功能
             Collection<ServiceInstance<ServiceInfo>> serviceInstanceCollection =
                     serviceDiscovery.queryForInstances(serviceName);
 

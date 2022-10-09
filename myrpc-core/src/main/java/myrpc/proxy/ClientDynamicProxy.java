@@ -55,6 +55,7 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         String serviceName = method.getDeclaringClass().getName();
         List<ServiceInfo> serviceInfoList = registry.discovery(serviceName);
+        logger.info("serviceInfoList.size={},serviceInfoList={}",serviceInfoList.size(),JsonUtil.obj2Str(serviceInfoList));
         // 暂时get(0)写死，后续引入负载均衡
         NettyClient nettyClient = NettyClientFactory.getNettyClient(serviceInfoList.get(0).getUrlAddress());
 
