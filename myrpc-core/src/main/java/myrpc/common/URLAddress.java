@@ -4,12 +4,15 @@ import java.util.Objects;
 
 public class URLAddress {
 
-    private final String host;
-    private final int port;
+    private String host;
+    private int port;
 
     public URLAddress(String host, int port) {
         this.host = host;
         this.port = port;
+    }
+
+    public URLAddress() {
     }
 
     public String getHost() {
@@ -18,6 +21,14 @@ public class URLAddress {
 
     public int getPort() {
         return port;
+    }
+
+    public void setHost(String host) {
+        this.host = host;
+    }
+
+    public void setPort(int port) {
+        this.port = port;
     }
 
     @Override

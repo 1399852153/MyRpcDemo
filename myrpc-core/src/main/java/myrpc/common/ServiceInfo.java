@@ -17,6 +17,9 @@ public class ServiceInfo {
         this.urlAddress = urlAddress;
     }
 
+    public ServiceInfo() {
+    }
+
     public String getServiceName() {
         return serviceName;
     }

@@ -3,7 +3,6 @@ package myrpc.proxy;
 import io.netty.channel.Channel;
 import myrpc.common.JsonUtil;
 import myrpc.common.ServiceInfo;
-import myrpc.common.URLAddress;
 import myrpc.exchange.DefaultFuture;
 import myrpc.netty.client.NettyClient;
 import myrpc.netty.client.NettyClientFactory;
@@ -13,14 +12,15 @@ import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import myrpc.netty.message.model.RpcResponse;
-import myrpc.registry.LocalFileRegistry;
 import myrpc.registry.Registry;
+import myrpc.registry.RegistryConfig;
+import myrpc.registry.RegistryFactory;
+import myrpc.registry.enums.RegistryCenterTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
-import java.net.InetAddress;
 import java.util.List;
 
 /**
@@ -30,8 +30,8 @@ public class ClientDynamicProxy implements InvocationHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
 
-    private static Registry registry = new LocalFileRegistry();
-
+    private static Registry registry = RegistryFactory.getRegistry(
+            new RegistryConfig(RegistryCenterTypeEnum.ZOOKEEPER.getCode(), "127.0.0.1:2181"));;
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
