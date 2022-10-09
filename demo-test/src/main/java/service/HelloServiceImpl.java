@@ -14,6 +14,7 @@ public class HelloServiceImpl implements HelloService{
 
     @Override
     public String echo(String message) {
+        System.out.println("HelloService echo!");
         return "server echo: " + message;
     }
 

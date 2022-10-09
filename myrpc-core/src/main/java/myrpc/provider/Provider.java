@@ -1,5 +1,6 @@
 package myrpc.provider;
 
+import myrpc.common.ServiceInfo;
 import myrpc.common.URLAddress;
 import myrpc.registry.Registry;
 
@@ -47,6 +48,7 @@ public class Provider<T> {
         ProviderManager.putProvider(this.interfaceClass.getName(),this);
 
         // 注冊到注冊中心
-        this.registry.doRegistry(this.interfaceClass.getName(),this.urlAddress);
+        this.registry.doRegistry(
+                new ServiceInfo(this.interfaceClass.getName(),this.urlAddress));
     }
 }

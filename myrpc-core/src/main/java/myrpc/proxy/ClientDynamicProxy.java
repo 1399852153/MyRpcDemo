@@ -2,6 +2,7 @@ package myrpc.proxy;
 
 import io.netty.channel.Channel;
 import myrpc.common.JsonUtil;
+import myrpc.common.ServiceInfo;
 import myrpc.common.URLAddress;
 import myrpc.exchange.DefaultFuture;
 import myrpc.netty.client.NettyClient;
@@ -53,9 +54,9 @@ public class ClientDynamicProxy implements InvocationHandler {
         logger.info("ClientDynamicProxy before: methodName=" + method.getName());
 
         String serviceName = method.getDeclaringClass().getName();
-        List<URLAddress> serverUrlAddress = registry.getURLAddress(serviceName);
+        List<ServiceInfo> serviceInfoList = registry.discovery(serviceName);
         // 暂时get(0)写死，后续引入负载均衡
-        NettyClient nettyClient = NettyClientFactory.getNettyClient(serverUrlAddress.get(0));
+        NettyClient nettyClient = NettyClientFactory.getNettyClient(serviceInfoList.get(0).getUrlAddress());
 
         RpcRequest rpcRequest = new RpcRequest();
         rpcRequest.setInterfaceName(method.getDeclaringClass().getName());

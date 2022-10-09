@@ -1,5 +1,6 @@
 package myrpc.registry;
 
+import myrpc.common.ServiceInfo;
 import myrpc.common.URLAddress;
 import myrpc.exception.MyRpcException;
 import org.slf4j.Logger;
@@ -16,19 +17,22 @@ public class LocalFileRegistry implements Registry{
 
     private static final Logger logger = LoggerFactory.getLogger(LocalFileRegistry.class);
 
-    private final Map<String, URLAddress> registerServiceCache = new HashMap<>();
+    private final Map<String, ServiceInfo> registerServiceCache = new HashMap<>();
 
     private final String userHome = System.getProperty("user.home");
     private final String configHome = userHome + "/myrpc/config.conf";
     private final String lineSeparator = System.getProperty("line.separator");
 
     @Override
-    public synchronized void doRegistry(String serviceName, URLAddress serverUrlAddress) {
+    public synchronized void doRegistry(ServiceInfo serviceInfo) {
         createConfigFileDir();
 
         File configFile = new File(configHome);
         try (PrintWriter pw = new PrintWriter((new FileOutputStream(configFile, true)))){
-            pw.append(serviceName).append("=").append(serverUrlAddress.getHost()).append(":").append(String.valueOf(serverUrlAddress.getPort()));
+            pw.append(serviceInfo.getServiceName()).append("=")
+                    .append(serviceInfo.getUrlAddress().getHost())
+                    .append(":")
+                    .append(String.valueOf(serviceInfo.getUrlAddress().getPort()));
             pw.append(lineSeparator);
             pw.flush();
         } catch (FileNotFoundException e) {
@@ -37,7 +41,7 @@ public class LocalFileRegistry implements Registry{
     }
 
     @Override
-    public void doUnRegistry(String serviceName, URLAddress serverUrlAddress) {
+    public void doUnRegistry(ServiceInfo serviceInfo) {
         logger.warn("LocalFileRegistry 暂时不支持 doUnRegistry操作");
     }
 
@@ -47,7 +51,7 @@ public class LocalFileRegistry implements Registry{
     }
 
     @Override
-    public List<URLAddress> getURLAddress(String serviceName) {
+    public List<ServiceInfo> discovery(String serviceName) {
         if(!registerServiceCache.containsKey(serviceName)){
             readFromLocalFile();
         }
@@ -89,8 +93,11 @@ public class LocalFileRegistry implements Registry{
         for (String item : data) {
             String[] arr = item.split("=");
             if (arr.length == 2) {
+                String serviceName = arr[0];
                 String[] serverUrl = arr[1].split(":");
-                registerServiceCache.put(arr[0], new URLAddress(serverUrl[0], Integer.parseInt(serverUrl[1])));
+                URLAddress urlAddress = new URLAddress(serverUrl[0], Integer.parseInt(serverUrl[1]));
+                registerServiceCache.put(arr[0],
+                        new ServiceInfo(serviceName,urlAddress));
             }
         }
     }

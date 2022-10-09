@@ -1,16 +1,17 @@
 package myrpc.registry;
 
+import myrpc.common.ServiceInfo;
 import myrpc.common.URLAddress;
 
 import java.util.List;
 
 public interface Registry {
 
-    void doRegistry(String serviceName, URLAddress serverUrlAddress);
+    void doRegistry(ServiceInfo serviceInfo);
 
-    void doUnRegistry(String serviceName, URLAddress serverUrlAddress);
+    void doUnRegistry(ServiceInfo serviceInfo);
 
     void doSubscribe();
 
-    List<URLAddress> getURLAddress(String serviceName);
+    List<ServiceInfo> discovery(String serviceName);
 }

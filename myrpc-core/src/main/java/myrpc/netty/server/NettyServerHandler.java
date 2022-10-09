@@ -32,12 +32,12 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcRequest> rpcRequestMessageProtocol){
-        logger.info("NettyServerHandler channelRead0={}", JsonUtil.obj2Str(rpcRequestMessageProtocol));
+        logger.debug("NettyServerHandler channelRead0={}", JsonUtil.obj2Str(rpcRequestMessageProtocol));
 
         // 用线程池处理实际的业务请求,避免耗时业务操作阻塞NIO事件循环
         bizTaskExecutor.execute(()->{
             MessageProtocol<RpcResponse> responseMessage = getResponseMessage(rpcRequestMessageProtocol);
-            logger.info("NettyServerHandler write responseMessage={}", JsonUtil.obj2Str(responseMessage));
+            logger.debug("NettyServerHandler write responseMessage={}", JsonUtil.obj2Str(responseMessage));
             channelHandlerContext.channel().writeAndFlush(responseMessage);
         });
 
