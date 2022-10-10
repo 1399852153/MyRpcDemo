@@ -30,8 +30,11 @@ public class ClientDynamicProxy implements InvocationHandler {
 
     private static Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
 
-    private static Registry registry = RegistryFactory.getRegistry(
-            new RegistryConfig(RegistryCenterTypeEnum.ZOOKEEPER.getCode(), "127.0.0.1:2181"));;
+    private Registry registry;
+
+    public ClientDynamicProxy(Registry registry) {
+        this.registry = registry;
+    }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {

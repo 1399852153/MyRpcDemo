@@ -1,6 +1,11 @@
 package myrpc.netty;
 
+import myrpc.consumer.Consumer;
 import myrpc.proxy.ClientDynamicProxy;
+import myrpc.registry.Registry;
+import myrpc.registry.RegistryConfig;
+import myrpc.registry.RegistryFactory;
+import myrpc.registry.enums.RegistryCenterTypeEnum;
 import service.HelloService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,10 +20,12 @@ public class NettyClientDemo {
     private static Logger logger = LoggerFactory.getLogger(NettyClientDemo.class);
 
     public static void main(String[] args){
-        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy();
+        Registry registry = RegistryFactory.getRegistry(
+                new RegistryConfig(RegistryCenterTypeEnum.ZOOKEEPER.getCode(), "127.0.0.1:2181"));
 
-        HelloService helloService = (HelloService) Proxy.newProxyInstance(
-                clientDynamicProxy.getClass().getClassLoader(),new Class[]{HelloService.class}, clientDynamicProxy);
+        Consumer<HelloService> consumer = new Consumer<>(HelloService.class,registry);
+        HelloService helloService = consumer.getProxy();
+
         String result = helloService.echo("666!");
         logger.info("echo result=" + result);
 

@@ -22,7 +22,7 @@ public class NettyServerDemo {
 
         URLAddress providerURLAddress = new URLAddress(serverAddress,port);
 
-        Registry localFileRegistry = RegistryFactory.getRegistry(
+        Registry registry = RegistryFactory.getRegistry(
                 new RegistryConfig(RegistryCenterTypeEnum.ZOOKEEPER.getCode(), "127.0.0.1:2181"));
 
         Provider<HelloServiceImpl> provider = new Provider<>();
@@ -30,7 +30,7 @@ public class NettyServerDemo {
         HelloServiceImpl helloServiceImpl = new HelloServiceImpl();
         provider.setRef(helloServiceImpl);
         provider.setUrlAddress(providerURLAddress);
-        provider.setRegistry(localFileRegistry);
+        provider.setRegistry(registry);
 
         provider.export();
 
