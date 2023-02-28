@@ -11,8 +11,8 @@ import java.util.concurrent.CompletableFuture;
  * */
 public class DefaultFuture<T> extends CompletableFuture<T> {
 
-    private Channel channel;
-    private RpcRequest rpcRequest;
+    private final Channel channel;
+    private final RpcRequest rpcRequest;
 
     public DefaultFuture(Channel channel, RpcRequest rpcRequest) {
         this.channel = channel;
