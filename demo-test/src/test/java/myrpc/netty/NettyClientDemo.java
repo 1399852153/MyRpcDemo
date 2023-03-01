@@ -1,6 +1,7 @@
 package myrpc.netty;
 
 import myrpc.consumer.Consumer;
+import myrpc.exception.MyRpcTimeoutException;
 import myrpc.proxy.ClientDynamicProxy;
 import myrpc.registry.Registry;
 import myrpc.registry.RegistryConfig;
@@ -31,6 +32,14 @@ public class NettyClientDemo {
 
         Map<String, List<Integer>> resultMap = helloService.testGeneric2();
         logger.info("testGeneric result=" + resultMap);
+
+        try {
+            helloService.testTimeout();
+        }catch (Exception exception){
+            if(exception.getCause().getCause() instanceof MyRpcTimeoutException){
+                logger.info("testTimeout success!");
+            }
+        }
 
         logger.info("client demo永久阻塞");
         LockSupport.park();

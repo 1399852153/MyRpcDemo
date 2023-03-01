@@ -12,4 +12,6 @@ public interface HelloService {
     Map<String,Integer> testGeneric();
 
     Map<String, List<Integer>> testGeneric2();
+
+    void testTimeout();
 }

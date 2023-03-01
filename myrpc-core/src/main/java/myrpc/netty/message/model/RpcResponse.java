@@ -39,4 +39,13 @@ public class RpcResponse {
     public void setExceptionValue(Exception exceptionValue) {
         this.exceptionValue = exceptionValue;
     }
+
+    @Override
+    public String toString() {
+        return "RpcResponse{" +
+            "messageId=" + messageId +
+            ", returnValue=" + returnValue +
+            ", exceptionValue=" + exceptionValue +
+            '}';
+    }
 }

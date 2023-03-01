@@ -4,6 +4,7 @@ import io.netty.channel.Channel;
 import myrpc.common.JsonUtil;
 import myrpc.common.ServiceInfo;
 import myrpc.exchange.DefaultFuture;
+import myrpc.exchange.DefaultFutureManager;
 import myrpc.netty.client.NettyClient;
 import myrpc.netty.client.NettyClientFactory;
 import myrpc.netty.message.enums.MessageFlagEnums;
@@ -80,12 +81,13 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         Channel channel = nettyClient.getChannel();
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
-        DefaultFuture<RpcResponse> defaultFuture = new DefaultFuture<>(channel,rpcRequest);
+        DefaultFuture<RpcResponse> defaultFuture = DefaultFutureManager.createNewFuture(channel,rpcRequest);
 
         nettyClient.send(new MessageProtocol<>(messageHeader,rpcRequest));
 
         logger.info("ClientDynamicProxy writeAndFlush success, wait result");
 
+        // 调用方阻塞在这里
         RpcResponse result = defaultFuture.get();
 
         logger.info("ClientDynamicProxy defaultFuture.get() result={}",result);

@@ -1,6 +1,5 @@
 package myrpc.netty.message.model;
 
-import java.lang.reflect.Type;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
