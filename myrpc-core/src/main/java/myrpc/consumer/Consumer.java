@@ -1,5 +1,6 @@
 package myrpc.consumer;
 
+import myrpc.balance.LoadBalance;
 import myrpc.proxy.ClientDynamicProxy;
 import myrpc.registry.Registry;
 
@@ -15,11 +16,12 @@ public class Consumer<T> {
     private T proxy;
     private Registry registry;
 
-    public Consumer(Class<?> interfaceClass, Registry registry) {
+
+    public Consumer(Class<?> interfaceClass, Registry registry, LoadBalance loadBalance) {
         this.interfaceClass = interfaceClass;
         this.registry = registry;
 
-        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy(registry);
+        ClientDynamicProxy clientDynamicProxy = new ClientDynamicProxy(registry,loadBalance);
 
         this.proxy = (T) Proxy.newProxyInstance(
                 clientDynamicProxy.getClass().getClassLoader(),
