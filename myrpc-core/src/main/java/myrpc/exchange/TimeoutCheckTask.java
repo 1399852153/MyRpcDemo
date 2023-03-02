@@ -24,7 +24,8 @@ public class TimeoutCheckTask implements TimerTask {
         // 构造超时的响应
         RpcResponse rpcResponse = new RpcResponse();
         rpcResponse.setMessageId(this.messageId);
-        rpcResponse.setExceptionValue(new MyRpcTimeoutException("request timeout：" + defaultFuture.getTimeout()));
+        rpcResponse.setExceptionValue(new MyRpcTimeoutException(
+            "request timeout：" + defaultFuture.getTimeout() + " channel=" + defaultFuture.getChannel()));
 
         DefaultFutureManager.received(rpcResponse);
     }

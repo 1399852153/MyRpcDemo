@@ -44,7 +44,7 @@ public class NettyClientDemo {
             helloService.testTimeout();
         }catch (Exception exception){
             if(exception.getCause().getCause() instanceof MyRpcTimeoutException){
-                logger.info("testTimeout success!");
+                logger.info("testTimeout success!",exception.getCause().getCause());
             }
         }
 

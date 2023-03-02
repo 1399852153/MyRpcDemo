@@ -39,4 +39,8 @@ public class DefaultFuture<T> extends CompletableFuture<T> {
     public long getMessageId(){
         return this.rpcRequest.getMessageId();
     }
+
+    public Channel getChannel() {
+        return channel;
+    }
 }
