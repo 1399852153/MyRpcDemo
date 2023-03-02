@@ -1,6 +1,6 @@
 package myrpc.netty;
 
-import myrpc.balance.RandomLoadBalance;
+import myrpc.balance.SimpleRoundRobinBalance;
 import myrpc.consumer.Consumer;
 import myrpc.consumer.ConsumerBootstrap;
 import myrpc.exception.MyRpcTimeoutException;
@@ -26,8 +26,7 @@ public class NettyClientDemo {
 
         ConsumerBootstrap consumerBootstrap = new ConsumerBootstrap()
             .registry(registry)
-            // 随机调用
-            .loadBalance(new RandomLoadBalance())
+            .loadBalance(new SimpleRoundRobinBalance())
             .init();
 
         // 注册消费者

@@ -20,12 +20,15 @@ public class HelloServiceImpl implements HelloService{
 
     @Override
     public String echo(String message) {
-        System.out.println("HelloService echo!");
+        logger.info("HelloService echo!");
+
         return "server echo: " + message;
     }
 
     @Override
     public Map<String, Integer> testGeneric() {
+        logger.info("server testGeneric");
+
         HashMap<String,Integer> resultMap = new HashMap<>();
         resultMap.put("aaa",111);
         resultMap.put("bbb",222);
@@ -35,6 +38,8 @@ public class HelloServiceImpl implements HelloService{
 
     @Override
     public Map<String, List<Integer>> testGeneric2() {
+        logger.info("server testGeneric2");
+
         HashMap<String,List<Integer>> resultMap = new HashMap<>();
         resultMap.put("aaa", Arrays.asList(1,2,3));
         resultMap.put("bbb",Arrays.asList(2,2,2));

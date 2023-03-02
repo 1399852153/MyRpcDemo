@@ -61,6 +61,7 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         // 负载均衡获得调用的服务端
         ServiceInfo selectedServiceInfo = loadBalance.select(serviceInfoList);
+        logger.info("selected info = " + selectedServiceInfo.getUrlAddress());
         NettyClient nettyClient = NettyClientFactory.getNettyClient(selectedServiceInfo.getUrlAddress());
 
         // 构造请求和协议头
