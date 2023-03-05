@@ -1,9 +1,12 @@
-package myrpc.proxy;
+package myrpc.consumer.proxy;
 
 import io.netty.channel.Channel;
 import myrpc.balance.LoadBalance;
 import myrpc.common.JsonUtil;
 import myrpc.common.ServiceInfo;
+import myrpc.common.URLAddress;
+import myrpc.consumer.context.ConsumerRpcContextHolder;
+import myrpc.exception.MyRpcException;
 import myrpc.exchange.DefaultFuture;
 import myrpc.exchange.DefaultFutureManager;
 import myrpc.netty.client.NettyClient;
@@ -15,14 +18,10 @@ import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcRequest;
 import myrpc.netty.message.model.RpcResponse;
 import myrpc.registry.Registry;
-import myrpc.registry.RegistryConfig;
-import myrpc.registry.RegistryFactory;
-import myrpc.registry.enums.RegistryCenterTypeEnum;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
 
@@ -59,10 +58,7 @@ public class ClientDynamicProxy implements InvocationHandler {
         List<ServiceInfo> serviceInfoList = registry.discovery(serviceName);
         logger.info("serviceInfoList.size={},serviceInfoList={}",serviceInfoList.size(),JsonUtil.obj2Str(serviceInfoList));
 
-        // 负载均衡获得调用的服务端
-        ServiceInfo selectedServiceInfo = loadBalance.select(serviceInfoList);
-        logger.info("selected info = " + selectedServiceInfo.getUrlAddress());
-        NettyClient nettyClient = NettyClientFactory.getNettyClient(selectedServiceInfo.getUrlAddress());
+
 
         // 构造请求和协议头
         RpcRequest rpcRequest = new RpcRequest();
@@ -81,6 +77,7 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         logger.info("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
 
+        NettyClient nettyClient = getTargetClient(serviceInfoList);
         Channel channel = nettyClient.getChannel();
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
         DefaultFuture<RpcResponse> defaultFuture = DefaultFutureManager.createNewFuture(channel,rpcRequest);
@@ -95,6 +92,24 @@ public class ClientDynamicProxy implements InvocationHandler {
         logger.info("ClientDynamicProxy defaultFuture.get() result={}",result);
 
         return result.getReturnValue();
+    }
+
+    private NettyClient getTargetClient(List<ServiceInfo> serviceInfoList){
+        URLAddress targetProviderAddress = ConsumerRpcContextHolder.getConsumerRpcContext().getTargetProviderAddress();
+        if(targetProviderAddress == null) {
+            // 未强制指定被调用方地址，负载均衡获得调用的服务端(正常逻辑)
+            ServiceInfo selectedServiceInfo = loadBalance.select(serviceInfoList);
+            logger.info("selected info = " + selectedServiceInfo.getUrlAddress());
+            return NettyClientFactory.getNettyClient(selectedServiceInfo.getUrlAddress());
+        }else{
+            // 从注册服务的中找到指定的服务
+            ServiceInfo targetServiceInfo = serviceInfoList.stream()
+                    .filter(item->item.getUrlAddress().equals(targetProviderAddress))
+                    .findAny()
+                    // 找不到，抛异常
+                    .orElseThrow(()->new MyRpcException("set targetProviderAddress，but can not find. targetProviderAddress=" + targetProviderAddress));
+            return NettyClientFactory.getNettyClient(targetServiceInfo.getUrlAddress());
+        }
     }
 
     private Object processLocalMethod(Object proxy, Method method, Object[] args) throws Exception {

@@ -1,7 +1,7 @@
 package myrpc.consumer;
 
 import myrpc.balance.LoadBalance;
-import myrpc.proxy.ClientDynamicProxy;
+import myrpc.consumer.proxy.ClientDynamicProxy;
 import myrpc.registry.Registry;
 
 import java.lang.reflect.Proxy;
@@ -12,9 +12,9 @@ import java.lang.reflect.Proxy;
  */
 public class Consumer<T> {
 
-    private Class<?> interfaceClass;
-    private T proxy;
-    private Registry registry;
+    private final Class<?> interfaceClass;
+    private final T proxy;
+    private final Registry registry;
 
 
     public Consumer(Class<?> interfaceClass, Registry registry, LoadBalance loadBalance) {
