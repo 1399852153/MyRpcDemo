@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 
 public class ZookeeperRegistry implements Registry{
 
-    public static final String ZK_BASE_PATH = "/myrpc";
+    public static final String ZK_BASE_PATH = "/my_rpc";
     public static final int BASE_SLEEP_TIME_MS = 1000;
     public static final int MAX_RETRIES = 2;
 

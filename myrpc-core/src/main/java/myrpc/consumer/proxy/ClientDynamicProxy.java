@@ -30,14 +30,10 @@ import java.util.List;
  * */
 public class ClientDynamicProxy implements InvocationHandler {
 
-    private static Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
+    private static final Logger logger = LoggerFactory.getLogger(ClientDynamicProxy.class);
 
-    private Registry registry;
-    private LoadBalance loadBalance;
-
-    public ClientDynamicProxy(Registry registry) {
-        this.registry = registry;
-    }
+    private final Registry registry;
+    private final LoadBalance loadBalance;
 
     public ClientDynamicProxy(Registry registry, LoadBalance loadBalance) {
         this.registry = registry;
@@ -57,8 +53,6 @@ public class ClientDynamicProxy implements InvocationHandler {
         String serviceName = method.getDeclaringClass().getName();
         List<ServiceInfo> serviceInfoList = registry.discovery(serviceName);
         logger.info("serviceInfoList.size={},serviceInfoList={}",serviceInfoList.size(),JsonUtil.obj2Str(serviceInfoList));
-
-
 
         // 构造请求和协议头
         RpcRequest rpcRequest = new RpcRequest();
