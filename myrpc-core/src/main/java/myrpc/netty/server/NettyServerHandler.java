@@ -2,7 +2,7 @@ package myrpc.netty.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import myrpc.common.JsonUtil;
+import myrpc.serialize.json.JsonUtil;
 import myrpc.netty.message.enums.MessageFlagEnums;
 import myrpc.netty.message.enums.MessageSerializeType;
 import myrpc.netty.message.model.MessageHeader;

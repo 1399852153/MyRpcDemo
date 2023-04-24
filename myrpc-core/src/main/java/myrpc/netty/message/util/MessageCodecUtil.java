@@ -2,7 +2,7 @@ package myrpc.netty.message.util;
 
 import io.netty.buffer.ByteBuf;
 import myrpc.common.GlobalConstants;
-import myrpc.common.JsonUtil;
+import myrpc.serialize.json.JsonUtil;
 import myrpc.netty.message.model.MessageHeader;
 import myrpc.netty.message.model.MessageProtocol;
 

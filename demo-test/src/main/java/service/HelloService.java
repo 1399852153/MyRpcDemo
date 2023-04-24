@@ -1,5 +1,7 @@
 package service;
 
+import model.User;
+
 import java.util.List;
 import java.util.Map;
 
@@ -14,4 +16,6 @@ public interface HelloService {
     Map<String, List<Integer>> testGeneric2();
 
     void testTimeout();
+
+    User echoUser(User user);
 }

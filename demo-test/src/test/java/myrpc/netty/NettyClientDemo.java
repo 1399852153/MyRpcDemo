@@ -1,5 +1,6 @@
 package myrpc.netty;
 
+import model.User;
 import myrpc.balance.SimpleRoundRobinBalance;
 import myrpc.consumer.Consumer;
 import myrpc.consumer.ConsumerBootstrap;
@@ -45,6 +46,16 @@ public class NettyClientDemo {
             if(exception.getCause().getCause() instanceof MyRpcTimeoutException){
                 logger.info("testTimeout success!",exception.getCause().getCause());
             }
+        }
+
+        User user = new User();
+        user.setId("id1");
+        user.setName("name1");
+        user.setAddress("address1");
+        User resultUser = helloService.echoUser(user);
+        System.out.println(resultUser);
+        if(!user.equals(resultUser)){
+            throw new RuntimeException("echoUser error!");
         }
 
         logger.info("client demo永久阻塞");

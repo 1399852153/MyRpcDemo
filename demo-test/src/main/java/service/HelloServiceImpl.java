@@ -1,5 +1,6 @@
 package service;
 
+import model.User;
 import myrpc.exchange.DefaultFuture;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,5 +59,12 @@ public class HelloServiceImpl implements HelloService{
         }
 
         logger.info("server testTimeout by sleep end");
+    }
+
+    @Override
+    public User echoUser(User user) {
+        logger.info("server echoUser user=" + user);
+
+        return user;
     }
 }

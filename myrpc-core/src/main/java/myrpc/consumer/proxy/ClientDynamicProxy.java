@@ -2,7 +2,7 @@ package myrpc.consumer.proxy;
 
 import io.netty.channel.Channel;
 import myrpc.balance.LoadBalance;
-import myrpc.common.JsonUtil;
+import myrpc.serialize.json.JsonUtil;
 import myrpc.common.ServiceInfo;
 import myrpc.common.URLAddress;
 import myrpc.consumer.context.ConsumerRpcContextHolder;

@@ -2,7 +2,7 @@ package myrpc.netty.client;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import myrpc.common.JsonUtil;
+import myrpc.serialize.json.JsonUtil;
 import myrpc.exchange.DefaultFutureManager;
 import myrpc.netty.message.model.MessageProtocol;
 import myrpc.netty.message.model.RpcResponse;
