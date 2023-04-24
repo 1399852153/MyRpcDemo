@@ -27,7 +27,7 @@ public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProto
      * 处理实际的业务请求的线程池(简单起见，直接写死参数配置)
      * */
     private final ThreadPoolExecutor bizTaskExecutor =
-            new ThreadPoolExecutor(20, 20, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2000));
+            new ThreadPoolExecutor(10, 10, 60L, TimeUnit.SECONDS, new ArrayBlockingQueue<>(2000));
 
 
     @Override
