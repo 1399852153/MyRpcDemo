@@ -19,7 +19,7 @@ public class NettyRpcResponseHandler extends SimpleChannelInboundHandler<Message
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, MessageProtocol<RpcResponse> rpcResponseMessageProtocol) throws Exception {
-        logger.info("NettyRpcResponseHandler channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
+        logger.debug("NettyRpcResponseHandler channelRead0={}",JsonUtil.obj2Str(rpcResponseMessageProtocol));
 
         // 触发客户端的future，令其同步阻塞的线程得到结果
         DefaultFutureManager.received(rpcResponseMessageProtocol.getBizDataBody());

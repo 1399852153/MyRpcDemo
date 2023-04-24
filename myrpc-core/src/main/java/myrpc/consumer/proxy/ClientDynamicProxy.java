@@ -48,11 +48,11 @@ public class ClientDynamicProxy implements InvocationHandler {
             return localMethodResult;
         }
 
-        logger.info("ClientDynamicProxy before: methodName=" + method.getName());
+        logger.debug("ClientDynamicProxy before: methodName=" + method.getName());
 
         String serviceName = method.getDeclaringClass().getName();
         List<ServiceInfo> serviceInfoList = registry.discovery(serviceName);
-        logger.info("serviceInfoList.size={},serviceInfoList={}",serviceInfoList.size(),JsonUtil.obj2Str(serviceInfoList));
+        logger.debug("serviceInfoList.size={},serviceInfoList={}",serviceInfoList.size(),JsonUtil.obj2Str(serviceInfoList));
 
         // 构造请求和协议头
         RpcRequest rpcRequest = new RpcRequest();
@@ -69,7 +69,7 @@ public class ClientDynamicProxy implements InvocationHandler {
         messageHeader.setResponseStatus((byte)'a');
         messageHeader.setMessageId(rpcRequest.getMessageId());
 
-        logger.info("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
+        logger.debug("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
 
         NettyClient nettyClient = getTargetClient(serviceInfoList);
         Channel channel = nettyClient.getChannel();
@@ -78,12 +78,12 @@ public class ClientDynamicProxy implements InvocationHandler {
 
         nettyClient.send(new MessageProtocol<>(messageHeader,rpcRequest));
 
-        logger.info("ClientDynamicProxy writeAndFlush success, wait result");
+        logger.debug("ClientDynamicProxy writeAndFlush success, wait result");
 
         // 调用方阻塞在这里
         RpcResponse result = defaultFuture.get();
 
-        logger.info("ClientDynamicProxy defaultFuture.get() result={}",result);
+        logger.debug("ClientDynamicProxy defaultFuture.get() result={}",result);
 
         return result.getReturnValue();
     }
@@ -93,7 +93,7 @@ public class ClientDynamicProxy implements InvocationHandler {
         if(targetProviderAddress == null) {
             // 未强制指定被调用方地址，负载均衡获得调用的服务端(正常逻辑)
             ServiceInfo selectedServiceInfo = loadBalance.select(serviceInfoList);
-            logger.info("selected info = " + selectedServiceInfo.getUrlAddress());
+            logger.debug("selected info = " + selectedServiceInfo.getUrlAddress());
             return NettyClientFactory.getNettyClient(selectedServiceInfo.getUrlAddress());
         }else{
             // 从注册服务的中找到指定的服务
