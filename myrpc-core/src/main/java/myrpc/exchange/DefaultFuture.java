@@ -13,7 +13,7 @@ public class DefaultFuture<T> extends CompletableFuture<T> {
     /**
      * 默认的超时时间(毫秒)
      * */
-    public static final long DEFAULT_TIME_OUT = 3000;
+    public static final long DEFAULT_TIME_OUT = 1000;
 
     private final Channel channel;
     private final RpcRequest rpcRequest;
