@@ -3,6 +3,7 @@ package myrpc.serialize.json;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializerProvider;
@@ -42,6 +43,14 @@ public class JsonUtil {
     public static <T> T json2Obj(String jsonStr, Class<T> objClass) {
         try {
             return OBJECT_MAPPER.readValue(jsonStr, objClass);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException("json2Obj error",e);
+        }
+    }
+
+    public static <T> T json2Obj(String jsonStr, TypeReference<T> valueTypeRef) {
+        try {
+            return OBJECT_MAPPER.readValue(jsonStr, valueTypeRef);
         } catch (JsonProcessingException e) {
             throw new RuntimeException("json2Obj error",e);
         }
