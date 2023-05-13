@@ -38,6 +38,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     list.add(messageDecodeResult.getMessageProtocol());
                 }
             }catch (Exception e){
+                // todo 需要清理现场吗？
                 logger.error("NettyDecoder error!",e);
                 throw new MyRpcException("NettyDecoder error!",e);
             }
