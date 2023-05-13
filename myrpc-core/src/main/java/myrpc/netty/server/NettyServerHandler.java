@@ -21,7 +21,7 @@ import java.util.concurrent.TimeUnit;
 
 public class NettyServerHandler extends SimpleChannelInboundHandler<MessageProtocol<RpcRequest>> {
 
-    private static Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(NettyServerHandler.class);
 
     /**
      * 处理实际的业务请求的线程池(简单起见，直接写死参数配置)

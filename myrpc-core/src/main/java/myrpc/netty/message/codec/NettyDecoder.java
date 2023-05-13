@@ -6,6 +6,9 @@ import io.netty.handler.codec.ByteToMessageDecoder;
 import myrpc.netty.message.enums.MessageFlagEnums;
 import myrpc.netty.message.model.*;
 import myrpc.netty.message.util.MessageCodecUtil;
+import myrpc.netty.server.NettyServerHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.List;
 
@@ -15,20 +18,27 @@ import java.util.List;
  */
 public class NettyDecoder extends ByteToMessageDecoder {
 
+    private static final Logger logger = LoggerFactory.getLogger(NettyDecoder.class);
+
     @Override
     protected void decode(ChannelHandlerContext channelHandlerContext, ByteBuf byteBuf, List<Object> list){
 
         // 保存读取前的读指针
         int beforeReadIndex = byteBuf.readerIndex();
         do{
-            MessageDecodeResult messageDecodeResult = decodeHeader(byteBuf);
-            if(messageDecodeResult.isNeedMoreData()){
-                // 出现拆包没有读取到一个完整的rpc请求，还原byteBuf读指针，等待下一次读事件
-                byteBuf.readerIndex(beforeReadIndex);
-                break;
-            }else{
-                // 正常解析完一个完整的message，交给后面的handler处理
-                list.add(messageDecodeResult.getMessageProtocol());
+            try {
+                MessageDecodeResult messageDecodeResult = decodeHeader(byteBuf);
+                if (messageDecodeResult.isNeedMoreData()) {
+                    // 出现拆包没有读取到一个完整的rpc请求，还原byteBuf读指针，等待下一次读事件
+                    byteBuf.readerIndex(beforeReadIndex);
+                    break;
+                } else {
+                    // 正常解析完一个完整的message，交给后面的handler处理
+                    list.add(messageDecodeResult.getMessageProtocol());
+                }
+            }catch (Exception e){
+                logger.error("NettyDecoder error!",e);
+                return;
             }
 
             // 循环，直到整个ByteBuf读取完
