@@ -3,6 +3,7 @@ package myrpc.netty.message.codec;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import myrpc.exception.MyRpcException;
 import myrpc.netty.message.enums.MessageFlagEnums;
 import myrpc.netty.message.model.*;
 import myrpc.netty.message.util.MessageCodecUtil;
@@ -38,7 +39,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
                 }
             }catch (Exception e){
                 logger.error("NettyDecoder error!",e);
-                return;
+                throw new MyRpcException("NettyDecoder error!",e);
             }
 
             // 循环，直到整个ByteBuf读取完
