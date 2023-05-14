@@ -29,6 +29,7 @@ public class NettyDecoder extends ByteToMessageDecoder {
         do{
             try {
                 MessageDecodeResult messageDecodeResult = decodeHeader(byteBuf);
+
                 if (messageDecodeResult.isNeedMoreData()) {
                     // 出现拆包没有读取到一个完整的rpc请求，还原byteBuf读指针，等待下一次读事件
                     byteBuf.readerIndex(beforeReadIndex);
@@ -38,9 +39,8 @@ public class NettyDecoder extends ByteToMessageDecoder {
                     list.add(messageDecodeResult.getMessageProtocol());
                 }
             }catch (Exception e){
-                // todo 需要清理现场吗？
+                // 比如decodeHeader里json序列化失败了等等.直接跳过这个数据包不还原了
                 logger.error("NettyDecoder error!",e);
-                throw new MyRpcException("NettyDecoder error!",e);
             }
 
             // 循环，直到整个ByteBuf读取完
