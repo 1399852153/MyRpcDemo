@@ -44,7 +44,7 @@ public class JsonUtil {
         try {
             return OBJECT_MAPPER.readValue(jsonStr, objClass);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("json2Obj error",e);
+            throw new RuntimeException("json2Obj error jsonStr="+jsonStr+",objClass=" + objClass,e);
         }
     }
 
@@ -52,7 +52,7 @@ public class JsonUtil {
         try {
             return OBJECT_MAPPER.readValue(jsonStr, valueTypeRef);
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("json2Obj error",e);
+            throw new RuntimeException("json2Obj error jsonStr="+jsonStr+",valueTypeRef=" + valueTypeRef,e);
         }
     }
 
