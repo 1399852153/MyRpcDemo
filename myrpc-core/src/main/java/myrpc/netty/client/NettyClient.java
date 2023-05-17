@@ -84,4 +84,12 @@ public class NettyClient {
         // 写的很简单，异常case都没考虑（可以参考NettyClient.doConnect实现）
         this.channel = future.sync().channel();
     }
+
+    @Override
+    public String toString() {
+        return "NettyClient{" +
+                "urlAddress=" + urlAddress +
+                ", channel=" + channel +
+                '}';
+    }
 }

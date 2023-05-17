@@ -72,6 +72,8 @@ public class ClientDynamicProxy implements InvocationHandler {
         logger.debug("ClientDynamicProxy rpcRequest={}", JsonUtil.obj2Str(rpcRequest));
 
         NettyClient nettyClient = getTargetClient(serviceInfoList);
+
+        logger.debug("ClientDynamicProxy getTargetClient={}", nettyClient);
         Channel channel = nettyClient.getChannel();
         // 通过Promise，将netty的异步转为同步,参考dubbo DefaultFuture
         DefaultFuture<RpcResponse> defaultFuture = DefaultFutureManager.createNewFuture(channel,rpcRequest);
