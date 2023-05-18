@@ -41,7 +41,7 @@ public class LocalFileRegistry implements Registry{
     }
 
     @Override
-    public void doUnRegistry(ServiceInfo serviceInfo) {
+    public synchronized void doUnRegistry(ServiceInfo serviceInfo) {
         logger.warn("LocalFileRegistry 暂时不支持 doUnRegistry操作");
     }
 

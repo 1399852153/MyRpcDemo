@@ -4,6 +4,8 @@ import io.netty.channel.Channel;
 import io.netty.util.HashedWheelTimer;
 import myrpc.netty.message.model.RpcRequest;
 import myrpc.netty.message.model.RpcResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -11,15 +13,19 @@ import java.util.concurrent.TimeUnit;
 
 public class DefaultFutureManager {
 
+    private static Logger logger = LoggerFactory.getLogger(DefaultFutureManager.class);
+
     public static final Map<Long,DefaultFuture> DEFAULT_FUTURE_CACHE = new ConcurrentHashMap<>();
     public static final HashedWheelTimer TIMER = new HashedWheelTimer();
 
     public static void received(RpcResponse rpcResponse){
         Long messageId = rpcResponse.getMessageId();
 
+        logger.debug("received rpcResponse={},DEFAULT_FUTURE_CACHE={}",rpcResponse,DEFAULT_FUTURE_CACHE);
         DefaultFuture defaultFuture = DEFAULT_FUTURE_CACHE.remove(messageId);
 
         if(defaultFuture != null){
+            logger.debug("remove defaultFuture success");
             if(rpcResponse.getExceptionValue() != null){
                 // 异常处理
                 defaultFuture.completeExceptionally(rpcResponse.getExceptionValue());
@@ -27,6 +33,8 @@ public class DefaultFutureManager {
                 // 正常返回
                 defaultFuture.complete(rpcResponse);
             }
+        }else{
+            logger.debug("remove defaultFuture fail");
         }
     }
 

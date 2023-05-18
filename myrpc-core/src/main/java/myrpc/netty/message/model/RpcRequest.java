@@ -35,8 +35,8 @@ public class RpcRequest {
     private Object[] params;
 
     public RpcRequest() {
-        // 每个请求对象生成时都自动生成、单机全局唯一的自增id
-        this.messageId = INVOKE_ID.get();
+        // 每个请求对象生成时都自动生成单机全局唯一的自增id
+        this.messageId = INVOKE_ID.getAndIncrement();
     }
 
     public long getMessageId() {
