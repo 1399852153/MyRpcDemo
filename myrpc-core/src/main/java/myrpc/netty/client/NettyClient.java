@@ -20,7 +20,7 @@ public class NettyClient {
 
     private final URLAddress urlAddress;
     private Bootstrap bootstrap;
-    private Channel channel;
+    private volatile Channel channel;
 
     public NettyClient(URLAddress urlAddress) {
         this.urlAddress = urlAddress;
@@ -40,6 +40,11 @@ public class NettyClient {
     }
 
     public void send(Object message) throws InterruptedException {
+        if(!channel.isActive() || !channel.isOpen()){
+            // 简单处理下连接失效，尝试重新创建新的连接(比如对端进程被杀，连接失效等)
+            doConnect();
+        }
+
         // 很多case没考虑到，可以参考dubbo的NettyChannel.send方法
         ChannelFuture channelFuture = channel.writeAndFlush(message);
         channelFuture.sync();
